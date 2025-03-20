@@ -1,8 +1,5 @@
 package primitives;
 
-import java.util.Map;
-import java.util.Vector;
-
 public class Point {
     protected final Double3 xyz;
     public static final Point ZERO = new Point(0, 0, 0);
@@ -13,7 +10,7 @@ public class Point {
         this.xyz = xyz;
     }
     public Vector subtract(Point point) {
-        return this.xyz.subtract(point.xyz);
+        return new Vector(this.xyz.d1() - point.xyz.d1(), this.xyz.d2() - point.xyz.d2(), this.xyz.d2() - point.xyz.d2());
     }
     public Point add(Vector vector) {
         return new Point(this.xyz.d1() + vector.xyz.d1(), this.xyz.d2() + vector.xyz.d2(), this.xyz.d2() + vector.xyz.d2());
