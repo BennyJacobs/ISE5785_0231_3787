@@ -2,12 +2,12 @@ package primitives;
 
 public class Vector extends Point {
     public Vector(double x, double y, double z) {
-        super(x, y, z);
-        if (xyz.equals(Double3.ZERO))
-            throw new IllegalArgumentException("ERROR: vector zero is illegal");
+        this(new Double3(x, y, z));
     }
     public Vector(Double3 xyz) {
-        this(xyz.d1(), xyz.d2(), xyz.d3());
+        super(xyz);
+        if (xyz.equals(Double3.ZERO))
+            throw new IllegalArgumentException("ERROR: vector zero is illegal");
     }
     public Vector add(Vector vector) {
         return new Vector(this.xyz.add(vector.xyz));

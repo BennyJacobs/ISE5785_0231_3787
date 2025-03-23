@@ -10,10 +10,10 @@ public class Point {
         this.xyz = xyz;
     }
     public Vector subtract(Point point) {
-        return new Vector(this.xyz.d1() - point.xyz.d1(), this.xyz.d2() - point.xyz.d2(), this.xyz.d2() - point.xyz.d2());
+        return new Vector(this.xyz.subtract(point.xyz));
     }
     public Point add(Vector vector) {
-        return new Point(this.xyz.d1() + vector.xyz.d1(), this.xyz.d2() + vector.xyz.d2(), this.xyz.d2() + vector.xyz.d2());
+        return new Point(this.xyz.add(vector.xyz));
     }
     public double distanceSquared(Point point) {
         double dx = this.xyz.d1() - point.xyz.d1();
