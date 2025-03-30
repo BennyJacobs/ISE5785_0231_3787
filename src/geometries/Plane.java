@@ -36,7 +36,10 @@ public class Plane extends Geometry {
      */
     public Plane(Point point1, Point point2, Point point3) {
         this.q = point1;
-        normal = null;
+        Vector v1 = point1.subtract(point2);
+        Vector v2 = point2.subtract(point3);
+        Vector normal = v1.crossProduct(v2);
+        this.normal = normal.normalize();
     }
 
     @Override
