@@ -2,6 +2,7 @@ package geometries;
 
 import primitives.Point;
 import primitives.Ray;
+import primitives.Util;
 import primitives.Vector;
 
 /**
@@ -29,18 +30,17 @@ public class Cylinder extends Tube {
     public Vector getNormal(Point point) {
         Point head = axis.getHead();
         Vector direction = axis.getDirection();
+        if (point.equals(head)) {
+            return direction.scale(-1);
+        }
         Vector tempVector = point.subtract(head);
         double dotProduct = tempVector.dotProduct(direction);
-        Vector normal;
-        if (dotProduct > 0 &&  dotProduct < height) {
-            Point projection = head.add(direction.scale(dotProduct));
-            normal = point.subtract(projection);
-        } else if (dotProduct == height) {
-            normal = direction;
-        } else {
-            normal = direction.scale(-1);
+        if (Util.isZero(dotProduct)) {
+            return direction.scale(-1);
         }
-
-        return normal.normalize();
+        if (Util.isZero(height-dotProduct)) {
+            return direction;
+        }
+        return super.getNormal(point);
     }
 }

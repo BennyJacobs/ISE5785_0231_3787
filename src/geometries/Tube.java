@@ -2,6 +2,7 @@ package geometries;
 
 import primitives.Point;
 import primitives.Ray;
+import primitives.Util;
 import primitives.Vector;
 
 /**
@@ -31,7 +32,7 @@ public class Tube extends RadialGeometry {
         Vector tempVector = point.subtract(head);
         double dotProduct = tempVector.dotProduct(direction);
         Vector normal;
-        if (dotProduct != 0) {
+        if (!Util.isZero(dotProduct)) {
             head = head.add(direction.scale(dotProduct));
         }
         normal = point.subtract(head);
