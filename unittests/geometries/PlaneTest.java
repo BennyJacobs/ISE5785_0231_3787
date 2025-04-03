@@ -6,7 +6,9 @@ import primitives.Point;
 
 
 import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Unit tests for {@link Plane} class
+ */
 class PlaneTest {
     Point point1 = new Point(1, 6, 3);
     Point point2 = new Point(4, 5, 2);
@@ -20,9 +22,11 @@ class PlaneTest {
         Point point5 = new Point(3, 18, 9);
 
         // ============ Equivalence Partitions Tests ==============
+        // Test Case 1 - Checking the normal vector for correctness
         getNormalTest();
 
         // =============== Boundary Values Tests ==================
+        // Test Case 1 - Checking the correctness of the constructor, in cases of identical points or on the same line
         assertThrows(IllegalArgumentException.class, () -> new Plane(point1, point1, point2), "ERROR: constructor should throw an exception or wrong exception has been thrown");
         assertThrows(IllegalArgumentException.class, () -> new Plane(point1, point2, point1), "ERROR: constructor should throw an exception or wrong exception has been thrown");
         assertThrows(IllegalArgumentException.class, () -> new Plane(point2, point1, point1), "ERROR: constructor should throw an exception or wrong exception has been thrown");
@@ -42,6 +46,7 @@ class PlaneTest {
         double accuracy = 0.00001;
         Vector normal = plane.getNormal(v1);
         // ============ Equivalence Partitions Tests ==============
+        // Test Case 1 - Checking the normal vector for correctness
         assertEquals(0, v1.dotProduct(normal), accuracy, "ERROR: the normal vector isn't orthogonal to plane vectors");
         assertEquals(0, v2.dotProduct(normal), accuracy, "ERROR: the normal vector isn't orthogonal to plane vectors");
         assertEquals(1, normal.length(), accuracy, "ERROR: the normal vector isn't normalized");

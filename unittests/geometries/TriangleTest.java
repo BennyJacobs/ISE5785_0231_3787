@@ -5,7 +5,9 @@ import primitives.Point;
 import primitives.Vector;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Unit tests for {@link Triangle} class
+ */
 class TriangleTest {
     /**
      * Test method for {@link Triangle#getNormal(Point)}
@@ -21,6 +23,7 @@ class TriangleTest {
         double accuracy = 0.00001;
         Vector normal = triangle.getNormal(v1);
         // ============ Equivalence Partitions Tests ==============
+        // Test Case 1 - Checking the normal vector for correctness
         assertEquals(0, v1.dotProduct(normal), accuracy, "ERROR: getNormal() the normal vector isn't orthogonal to plane vectors");
         assertEquals(0, v2.dotProduct(normal), accuracy, "ERROR: getNormal() the normal vector isn't orthogonal to plane vectors");
         assertEquals(1, normal.length(), accuracy, "ERROR: getNormal() the normal vector isn't normalized");

@@ -6,7 +6,9 @@ import primitives.Ray;
 import primitives.Vector;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Unit tests for {@link Cylinder} class
+ */
 class CylinderTest {
     /**
      * Test method for {@link Cylinder#getNormal(Point)}
