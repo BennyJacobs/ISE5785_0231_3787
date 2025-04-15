@@ -6,7 +6,7 @@ import primitives.Vector;
 /**
  * Abstract class representing a geometric object.
  */
-public abstract class Geometry {
+public abstract class Geometry implements Intersectable {
     /**
      * Abstract method to calculate the normal vector to the geometry at a given point.
      *

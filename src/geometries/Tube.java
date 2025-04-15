@@ -5,6 +5,8 @@ import primitives.Ray;
 import primitives.Util;
 import primitives.Vector;
 
+import java.util.List;
+
 /**
  * Class representing a tube in 3D space.
  */
@@ -37,5 +39,10 @@ public class Tube extends RadialGeometry {
         }
         normal = point.subtract(head);
         return normal.normalize();
+    }
+
+    @Override
+    public List<Point> findIntersections(Ray ray) {
+        return null;
     }
 }

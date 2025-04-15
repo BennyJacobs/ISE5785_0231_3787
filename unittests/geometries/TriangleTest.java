@@ -2,6 +2,7 @@ package geometries;
 
 import org.junit.jupiter.api.Test;
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,5 +28,13 @@ class TriangleTest {
         assertEquals(0, v1.dotProduct(normal), accuracy, "ERROR: getNormal() the normal vector isn't orthogonal to plane vectors");
         assertEquals(0, v2.dotProduct(normal), accuracy, "ERROR: getNormal() the normal vector isn't orthogonal to plane vectors");
         assertEquals(1, normal.length(), accuracy, "ERROR: getNormal() the normal vector isn't normalized");
+    }
+
+    /**
+     * Test method for {@link Triangle#findIntersections(Ray)}
+     */
+    @Test
+    void findIntersectionsTest() {
+
     }
 }

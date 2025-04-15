@@ -25,6 +25,13 @@ class TubeTest {
         // =============== Boundary Values Tests ==================
         // Test Case 1 - Checking the normal vector for correctness (In case the point is on the same circle as the reference point)
         assertEquals(new Vector(0, 1, 0), tube.getNormal(new Point(0, 1, 0)), "ERROR: the normal vector isn't orthogonal to tangent at the point");
+    }
+
+    /**
+     * Test method for {@link Tube#findIntersections(Ray)}
+     */
+    @Test
+    void findIntersectionsTest() {
 
     }
 }

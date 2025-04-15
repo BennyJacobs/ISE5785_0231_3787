@@ -49,4 +49,11 @@ class CylinderTest {
                 "ERROR: The normal vector at the edge of the top base is incorrect. Expected the normal to be consistent with the base's orientation.");
     }
 
+    /**
+     * Test method for {@link Cylinder#findIntersections(Ray)}
+     */
+    @Test
+    void findIntersectionsTest() {
+
+    }
 }

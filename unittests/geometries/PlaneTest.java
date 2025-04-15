@@ -1,9 +1,12 @@
 package geometries;
 
 import org.junit.jupiter.api.Test;
+import primitives.Ray;
 import primitives.Vector;
 import primitives.Point;
 
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 /**
@@ -12,6 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class PlaneTest {
     Point point1 = new Point(1, 6, 3);
     Point point2 = new Point(4, 5, 2);
+    Point point3 = new Point(3, 6, 9);
+    Vector v1 = point1.subtract(point2);
+    Vector v2 = point3.subtract(point2);
+    Plane plane = new Plane(point1, point2, point3);
 
     /**
      * Test method for {@link Plane#Plane(Point, Point, Point)}
@@ -39,10 +46,6 @@ class PlaneTest {
      */
     @Test
     void getNormalTest() {
-        Point point3 = new Point(3, 6, 9);
-        Vector v1 = point1.subtract(point2);
-        Vector v2 = point3.subtract(point2);
-        Plane plane = new Plane(point1, point2, point3);
         double accuracy = 0.00001;
         Vector normal = plane.getNormal(v1);
         // ============ Equivalence Partitions Tests ==============
@@ -50,5 +53,22 @@ class PlaneTest {
         assertEquals(0, v1.dotProduct(normal), accuracy, "ERROR: the normal vector isn't orthogonal to plane vectors");
         assertEquals(0, v2.dotProduct(normal), accuracy, "ERROR: the normal vector isn't orthogonal to plane vectors");
         assertEquals(1, normal.length(), accuracy, "ERROR: the normal vector isn't normalized");
+    }
+
+    /**
+     * Test method for {@link Plane#findIntersections(Ray)}
+     */
+    @Test
+    void findIntersectionsTest() {
+        // ============ Equivalence Partitions Tests ==============
+        // Test Case 1 - Ray intersects the plane
+        Ray crossRay = new Ray(new Point(-4,4,0),new Vector(-5, 5, -2));
+        var result = plane.findIntersections(crossRay);
+        assertNotNull(result, "ERROR: the intersections' array should not be null");
+        assertEquals(1, result.size(), "ERROR: Wrong number of intersections");
+        Point intersectionPoint = new Point(-8.324324324324323, 8.324324324324323, -1.72972972972973);
+        var exp = List.of(intersectionPoint);
+        assertEquals(exp, result, "ERROR: Wrong intersection point");
+
     }
 }
