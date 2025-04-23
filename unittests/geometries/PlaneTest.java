@@ -9,6 +9,7 @@ import primitives.Point;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for {@link Plane} class
  */
@@ -61,14 +62,62 @@ class PlaneTest {
     @Test
     void findIntersectionsTest() {
         // ============ Equivalence Partitions Tests ==============
-        // Test Case 1 - Ray intersects the plane
-        Ray crossRay = new Ray(new Point(-4,4,0),new Vector(-5, 5, -2));
+        // Test Case 01 - Ray intersects the plane
+        Ray crossRay = new Ray(new Point(-4, 4, 0), new Vector(-5, 5, -2));
         var result = plane.findIntersections(crossRay);
         assertNotNull(result, "ERROR: the intersections' array should not be null");
         assertEquals(1, result.size(), "ERROR: Wrong number of intersections");
         Point intersectionPoint = new Point(-8.324324324324323, 8.324324324324323, -1.72972972972973);
         var exp = List.of(intersectionPoint);
         assertEquals(exp, result, "ERROR: Wrong intersection point");
+
+        // Test Case 02 - Ray doesn't intersect the plane
+        Ray notCrossRay = new Ray(new Point(-4, 4, 0), new Vector(5, -5, 2));
+        result = plane.findIntersections(notCrossRay);
+        assertNull(result, "ERROR: the intersections' array should be null");
+
+        // =============== Boundary Values Tests ==================
+        // **** Group 1: Ray is parallel to the plane
+        // Test Case 11 - Ray is parallel to the plane
+        Ray parallelRay = new Ray(new Point(-4, 4, 0), new Vector(3, -1, -1));
+        result = plane.findIntersections(parallelRay);
+        assertNull(result, "ERROR: the intersections' array should be null");
+
+        // Test Case 12 - Ray is included in the plane
+        Ray includedRay = new Ray(new Point(4, 5, 2), new Vector(3, -1, -1));
+        result = plane.findIntersections(includedRay);
+        assertNull(result, "ERROR: the intersections' array should be null");
+
+        // **** Group 2: Ray is orthogonal to the plane
+        // Test Case 21 - Ray is orthogonal to the plane (before)
+        Ray orthogonalBefore = new Ray(new Point(-2, 8, 0), new Vector(-6, -20, 2));
+        result = plane.findIntersections(orthogonalBefore);
+        assertNotNull(result, "ERROR: the intersections' array should not be null");
+        assertEquals(1, result.size(), "ERROR: Wrong number of intersections");
+        intersectionPoint = new Point(-2.381818181818182, 6.727272727272728, 0.12727272727272727);
+        exp = List.of(intersectionPoint);
+        assertEquals(exp, result, "ERROR: Wrong intersection point");
+
+        // Test Case 22 - Ray is orthogonal to the plane (in)
+        Ray orthogonalIn = new Ray(new Point(4, 5, 2), new Vector(-6, -20, 2));
+        result = plane.findIntersections(orthogonalIn);
+        assertNull(result, "ERROR: the intersections' array should be null");
+
+        // Test Case 23 - Ray is orthogonal to the plane (after)
+        Ray orthogonalAfter = new Ray(new Point(-4, 2, 0), new Vector(-6, -20, 2));
+        result = plane.findIntersections(orthogonalAfter);
+        assertNull(result, "ERROR: the intersections' array should be null");
+
+        // **** Group 3: Ray is neither orthogonal nor parallel to and begins at the plane
+        // Test Case 31 - Ray intersects the plane (Begins at the plane)
+        Ray beginsAtThePlane = new Ray(new Point(4, 5, 2), new Vector(-5, 5, -2));
+        result = plane.findIntersections(beginsAtThePlane);
+        assertNull(result, "ERROR: the intersections' array should be null");
+
+        // Test Case 32 - Ray intersects the plane (Begins at the plane - Q)
+        Ray beginsAtThePlaneQ = new Ray(new Point(1, 6, 3), new Vector(-5, 5, -2));
+        result = plane.findIntersections(beginsAtThePlaneQ);
+        assertNull(result, "ERROR: the intersections' array should be null");
 
     }
 }

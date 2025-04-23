@@ -95,6 +95,40 @@ public class Polygon extends Geometry {
 
     @Override
     public List<Point> findIntersections(Ray ray) {
-        return null;
+        List<Point> planeIntersections = plane.findIntersections(ray);
+        if (planeIntersections == null) {
+            return null;
+        }
+
+        Point rayHead = ray.getHead();
+        Vector rayDirection = ray.getDirection();
+
+        int size = vertices.size();
+        Vector[] normals = new Vector[size];
+
+        for (int i = 0; i < size; i++) {
+            Point pi = vertices.get(i);
+            Point pj = vertices.get((i + 1) % size);
+
+            Vector vi = pi.subtract(rayHead);
+            Vector vj = pj.subtract(rayHead);
+
+            normals[i] = vi.crossProduct(vj).normalize();
+        }
+
+        double dotProduct = alignZero(normals[0].dotProduct(rayDirection));
+        if (dotProduct == 0)
+            return null;
+
+        boolean isPositive = dotProduct > 0;
+
+        for (int i = 1; i < size; i++) {
+            dotProduct = alignZero(normals[i].dotProduct(rayDirection));
+            if (dotProduct == 0 || (dotProduct > 0) != isPositive)
+                return null;  // Return null if dotProduct is zero or signs don't match
+        }
+
+
+        return planeIntersections;
     }
 }

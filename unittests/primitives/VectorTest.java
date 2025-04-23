@@ -67,6 +67,10 @@ class VectorTest {
         Vector vResult = new Vector(2.5, 5, 7.5);
         assertEquals(vResult, v1.scale(2.5), "ERROR: scale() wrong result");
 
+        // Test Case 2 - Base case scale method test - negative scalar
+        vResult = new Vector(-2.5, -5, -7.5);
+        assertEquals(vResult, v1.scale(-2.5), "ERROR: scale() wrong result");
+
         // =============== Boundary Values Tests ==================
         // Test Case 1 - Check that an error is thrown in the case of a zero vector
         assertThrows(IllegalArgumentException.class, () -> v1.scale(0), "ERROR: scale() mustn't return the 0 vector or wrong exception has been thrown");
@@ -78,14 +82,26 @@ class VectorTest {
     @Test
     void dotProduct() {
         // ============ Equivalence Partitions Tests ==============;
-        // Test Case 1 - Base case dot product method test
+        // Test Case 1 - Base case dot product method test - acute angle
         double result = 32;
         assertEquals(result, v1.dotProduct(v2), "ERROR: dotProduct() wrong result");
 
+        // Test Case 2 - Base case dot product method test - obtuse angle
+        result = -32;
+        assertEquals(result, v1.dotProduct(new Vector(-4,-5,-6)), "ERROR: dotProduct() wrong result");
+
         // =============== Boundary Values Tests ==================
-        // Test Case 1 - Check that if the vectors are orthogonal to each other their dot product is 0
+        // Test Case 1 - Check that if the vectors are orthogonal to each other their dot product is 0 (90 degrees)
         Vector v1Orthogonal = new Vector(4, -2, 0);
         assertEquals(0, v1.dotProduct(v1Orthogonal), "ERROR: dotProduct() for orthogonal vectors is not zero");
+
+        // Test Case 2 - Check that if the vectors are orthogonal to each other their dot product is 0 (270 degrees)
+        v1Orthogonal = new Vector(-4, 2, 0);
+        assertEquals(0, v1.dotProduct(v1Orthogonal), "ERROR: dotProduct() for orthogonal vectors is not zero");
+
+        // Test Case 3 - Dot product between a vector and a unit vector. Returns the projection
+        Vector projection = new Vector(1, 0, 0);
+        assertEquals(1, v1.dotProduct(projection), "ERROR: dotProduct() for orthogonal vectors is not zero");
     }
 
     /**
@@ -99,9 +115,12 @@ class VectorTest {
         assertEquals(vResult, v1.crossProduct(v2), "ERROR: crossProduct() wrong result");
 
         // =============== Boundary Values Tests ==================
-        // Test Case 1 - Check that an error is thrown in the case of a zero vector
+        // Test Case 1 - Check that an error is thrown in the case of a zero vector - parallels
         Vector v1Parallel = new Vector(2, 4, 6);
         assertThrows(IllegalArgumentException.class, () -> v1.crossProduct(v1Parallel), "ERROR: crossProduct() mustn't return the 0 vector or wrong exception has been thrown");
+
+        // Test Case 2 - Check that an error is thrown in the case of a zero vector - same vector
+        assertThrows(IllegalArgumentException.class, () -> v1.crossProduct(v1), "ERROR: crossProduct() mustn't return the 0 vector or wrong exception has been thrown");
     }
 
     /**

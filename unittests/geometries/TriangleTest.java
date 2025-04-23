@@ -5,7 +5,10 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for {@link Triangle} class
  */
@@ -35,6 +38,35 @@ class TriangleTest {
      */
     @Test
     void findIntersectionsTest() {
+
+        final Triangle triangle = new Triangle(new Point(1, 0, 0), new Point(0, 1, 0), new Point(0, 0, 1));
+        final Point rayPoint = new Point(2, 1, 2);
+
+        // ============ Equivalence Partitions Tests ==============
+        // TC01: Ray's line is outside the triangle, against edge(0 points)
+        assertNull(triangle.findIntersections(new Ray(rayPoint, new Vector(-1, -2, -2))), "Ray's line out of triangle, against edge");
+
+        // TC02: Ray's line is outside the triangle, against vertex (0 points)
+        assertNull(triangle.findIntersections(new Ray(rayPoint, new Vector(1, -2, -2))), "Ray's line out of triangle, against vertex");
+
+        // TC03: Ray's line crosses the triangle (1 point)
+        Ray ray = new Ray(rayPoint, new Vector(-2, -0.5, -2));
+        final var exp = List.of(new Point(0.222222222222222, 0.555555555555556, 0.222222222222222));
+        final var result1 = triangle.findIntersections(ray);
+        assertNotNull(result1, "Can't be empty list");
+        assertEquals(1, result1.size(), "Wrong number of points");
+        assertEquals(exp, result1, "Ray crosses triangle");
+
+        // =============== Boundary Values Tests ==================
+        // TC01: Ray's line is on the triangle's edge(0 points)
+        assertNull(triangle.findIntersections(new Ray(rayPoint, new Vector(-1.5, -1, -1.5))), "Ray's line on triangle's edge");
+
+        // TC02: Ray's line is on the triangle's vertex (0 points)
+        assertNull(triangle.findIntersections(new Ray(rayPoint, new Vector(-1, -1, -2))), "Ray's line on triangle's vertex");
+
+        // TC03: Ray's line is on the triangle's edge continuation (0 points)
+        assertNull(triangle.findIntersections(new Ray(rayPoint, new Vector(-7, -1, 4))), "Ray's line on triangle's edge continuation");
+
 
     }
 }

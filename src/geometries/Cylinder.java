@@ -35,8 +35,8 @@ public class Cylinder extends Tube {
         if (point.equals(head)) {
             return direction.scale(-1);
         }
-        Vector tempVector = point.subtract(head);
-        double dotProduct = tempVector.dotProduct(direction);
+        Vector u = point.subtract(head);
+        double dotProduct = u.dotProduct(direction);
         if (Util.isZero(dotProduct)) {
             return direction.scale(-1);
         }
@@ -48,6 +48,6 @@ public class Cylinder extends Tube {
 
     @Override
     public List<Point> findIntersections(Ray ray) {
-        return super.findIntersections(ray);
+        return null;
     }
 }

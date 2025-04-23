@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 
 import primitives.*;
 
+import java.util.List;
+
 /**
  * Testing Polygons
  * @author Dan
@@ -88,10 +90,36 @@ class PolygonTests {
     }
 
     /**
-     * Test method for {@link Polygon#findIntersections(Ray)}
+     * Test method for {@link Polygon#findIntersections(Ray)}.
      */
     @Test
-    void findIntersectionsTest() {
+    public void FindIntersections() {
+        final Polygon polygon = new Polygon(new Point(1, 0, 0), new Point(-1, 0, 0), new Point(-1, 2, 0), new Point(1, 2, 0));
+        final Point rayPoint = new Point(0.5, 0.5, 2);
 
+        // ============ Equivalence Partitions Tests ==============
+        // TC01: Ray's line is outside the polygon, against edge(0 points)
+        assertNull(polygon.findIntersections(new Ray(rayPoint, new Vector(-0.5, -2.5, -3))), "Ray's line out of polygon, against edge");
+
+        // TC02: Ray's line is outside the polygon, against vertex (0 points)
+        assertNull(polygon.findIntersections(new Ray(rayPoint, new Vector(3.5, -2.5, -3))), "Ray's line out of polygon, against vertex");
+
+        // TC03: Ray's line crosses the polygon (1 point)
+        Ray ray = new Ray(rayPoint, new Vector(-0.5, 0.5, -2));
+        final var exp = List.of(new Point(0, 1, 0));
+        final var result1 = polygon.findIntersections(ray);
+        assertNotNull(result1, "Can't be empty list");
+        assertEquals(1, result1.size(), "Wrong number of points");
+        assertEquals(exp, result1, "Ray crosses polygon");
+
+        // =============== Boundary Values Tests ==================
+        // TC01: Ray's line is on the polygon's edge(0 points)
+        assertNull(polygon.findIntersections(new Ray(rayPoint, new Vector(0.5, 0.5, -2))), "Ray's line on polygon's edge");
+
+        // TC02: Ray's line is on the polygon's vertex (0 points)
+        assertNull(polygon.findIntersections(new Ray(rayPoint, new Vector(0.5, 0.5, -2))), "Ray's line on polygon's vertex");
+
+        // TC03: Ray's line is on the polygon's edge continuation (0 points)
+        assertNull(polygon.findIntersections(new Ray(rayPoint, new Vector(1.5, -0.5, -2))), "Ray's line on polygon's edge continuation");
     }
 }
