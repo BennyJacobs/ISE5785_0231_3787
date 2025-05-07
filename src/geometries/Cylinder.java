@@ -5,6 +5,7 @@ import primitives.Ray;
 import primitives.Util;
 import primitives.Vector;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,6 +49,31 @@ public class Cylinder extends Tube {
 
     @Override
     public List<Point> findIntersections(Ray ray) {
-        return null;
+        Point baseCenter = axis.getHead();
+        List<Point> intersections = new ArrayList<>();
+        List<Point> list = super.findIntersections(ray);
+        if(list != null)
+            for (Point point : list) {
+                double distance = Util.alignZero(point.subtract(baseCenter).dotProduct(axis.getDirection()));
+                if (distance > 0 && Util.alignZero(distance - height) < 0)
+                    intersections.add(point);
+            }
+
+        // Check intersection with bottom base
+        Circle bottomBase = new Circle(baseCenter, radius, getNormal(baseCenter));
+        list = bottomBase.findIntersections(ray);
+        if(list != null)
+            intersections.add(list.getFirst());
+
+        // Check intersection with top base
+        Point topCenter = baseCenter.add(axis.getDirection().scale(height));
+        Circle topBase = new Circle(topCenter, radius, getNormal(topCenter));
+        list = topBase.findIntersections(ray);
+        if(list != null)
+            intersections.add(list.getFirst());
+
+        if (intersections.isEmpty())
+                return null;
+        return intersections;
     }
 }

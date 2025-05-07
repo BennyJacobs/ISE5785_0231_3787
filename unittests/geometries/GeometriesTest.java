@@ -28,7 +28,7 @@ class GeometriesTest {
         Ray intersectRay = new Ray(new Point(-5,0.7,1), new Vector(1,0,0));
         var intersections = geometries.findIntersections(intersectRay);
         assertNotNull(intersections, "Intersections should not be null");
-        assertEquals(3, intersections.size(), "Wrong number of intersections");
+        assertEquals(5, intersections.size(), "Wrong number of intersections");
 
         // =============== Boundary Values Tests ==================
         // Test Case 01 - Empty geometries collection
@@ -52,7 +52,7 @@ class GeometriesTest {
         intersectRay = new Ray(new Point(-5,0,0.25), new Vector(1,0,0));
         intersections = geometries.findIntersections(intersectRay);
         assertNotNull(intersections, "Intersections should not be null");
-        assertEquals(5, intersections.size(), "Wrong number of intersections");
+        assertEquals(9, intersections.size(), "Wrong number of intersections");
 
     }
 }
