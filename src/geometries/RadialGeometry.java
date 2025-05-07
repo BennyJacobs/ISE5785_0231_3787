@@ -1,10 +1,5 @@
 package geometries;
 
-import primitives.Point;
-import primitives.Ray;
-
-import java.util.List;
-
 /**
  * Abstract class representing geometries with a radial characteristic (such as spheres and tubes).
  */
@@ -22,6 +17,4 @@ public abstract class RadialGeometry extends Geometry {
     public RadialGeometry(double radius) {
         this.radius = radius;
     }
-
-    public abstract List<Point> findIntersections(Ray ray);
 }
