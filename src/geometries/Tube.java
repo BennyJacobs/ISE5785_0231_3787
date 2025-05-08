@@ -55,7 +55,7 @@ public class Tube extends RadialGeometry {
                 return null;
 
             return List.of(ray.getPoint(
-                    Math.sqrt(radius * radius / rayDirection.subtract(axisDirection.scale(dirV)).lengthSquared())));
+                    radius / rayDirection.subtract(axisDirection.scale(dirV)).length()));
         }
 
         Vector deltaP = ray.getHead().subtract(tubeHead);
