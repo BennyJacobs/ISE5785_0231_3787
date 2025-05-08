@@ -26,8 +26,8 @@ public class Circle extends RadialGeometry {
     /**
      * Constructor to create a circle with a given center and radius.
      *
-     * @param center the center point of the sphere
-     * @param radius the radius of the sphere
+     * @param center the center point of the circle
+     * @param radius the radius of the circle
      */
     public Circle(Point center, double radius, Vector normal) {
         super(radius);
