@@ -83,13 +83,18 @@ public class Tube extends RadialGeometry {
         if (discriminant <= 0)
             return null;
 
-        List<Point> points = new LinkedList<>();
+        List<Point> intersections = null;
 
-        if (t1 > 0)
-            points.add(ray.getPoint(t1));
-        if (t2 > 0)
-            points.add(ray.getPoint(t2));
+        if (t1 > 0) {
+            intersections = new LinkedList<>();
+            intersections.add(ray.getPoint(t1));
+        }
+        if (t2 > 0) {
+            if (intersections == null)
+                intersections = new LinkedList<>();
+            intersections.add(ray.getPoint(t2));
+        }
 
-        return points.isEmpty() ? null : points;
+        return intersections;
     }
 }

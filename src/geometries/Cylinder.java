@@ -6,6 +6,7 @@ import primitives.Util;
 import primitives.Vector;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -41,7 +42,7 @@ public class Cylinder extends Tube {
         if (Util.isZero(dotProduct)) {
             return direction.scale(-1);
         }
-        if (Util.isZero(height-dotProduct)) {
+        if (Util.isZero(height - dotProduct)) {
             return direction;
         }
         return super.getNormal(point);
@@ -50,30 +51,37 @@ public class Cylinder extends Tube {
     @Override
     public List<Point> findIntersections(Ray ray) {
         Point baseCenter = axis.getHead();
-        List<Point> intersections = new ArrayList<>();
+        List<Point> intersections = null;
         List<Point> list = super.findIntersections(ray);
-        if(list != null)
+        if (list != null)
             for (Point point : list) {
                 double distance = Util.alignZero(point.subtract(baseCenter).dotProduct(axis.getDirection()));
-                if (distance > 0 && Util.alignZero(distance - height) < 0)
+                if (distance > 0 && Util.alignZero(distance - height) < 0) {
+                    if (intersections == null)
+                        intersections = new LinkedList<>();
                     intersections.add(point);
+                }
             }
 
         // Check intersection with bottom base
         Circle bottomBase = new Circle(baseCenter, radius, getNormal(baseCenter));
         list = bottomBase.findIntersections(ray);
-        if(list != null)
+        if (list != null) {
+            if (intersections == null)
+                intersections = new LinkedList<>();
             intersections.add(list.getFirst());
+        }
 
         // Check intersection with top base
         Point topCenter = baseCenter.add(axis.getDirection().scale(height));
         Circle topBase = new Circle(topCenter, radius, getNormal(topCenter));
         list = topBase.findIntersections(ray);
-        if(list != null)
+        if (list != null) {
+            if (intersections == null)
+                intersections = new LinkedList<>();
             intersections.add(list.getFirst());
+        }
 
-        if (intersections.isEmpty())
-                return null;
         return intersections;
     }
 }
