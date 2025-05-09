@@ -1,9 +1,7 @@
 package renderer;
 
-import primitives.Point;
-import primitives.Ray;
-import primitives.Util;
-import primitives.Vector;
+import primitives.*;
+import scene.Scene;
 
 import java.util.MissingResourceException;
 
@@ -50,6 +48,26 @@ public class Camera implements Cloneable {
     private double distance = 0.0;
 
     /**
+     * The image writer responsible for writing the rendered image to file.
+     */
+    private ImageWriter imageWriter;
+
+    /**
+     * The ray tracer used to trace rays through the scene.
+     */
+    private RayTracerBase rayTracer;
+
+    /**
+     * Number of pixels in width (X-axis resolution).
+     */
+    private int nX = 1;
+
+    /**
+     * Number of pixels in height (Y-axis resolution).
+     */
+    private int nY = 1;
+
+    /**
      * Private constructor. Use {@link Builder} to construct a Camera instance.
      */
     private Camera() {
@@ -85,6 +103,61 @@ public class Camera implements Cloneable {
         if (!Util.isZero(yI))
             pIJ = pIJ.add(vUp.scale(yI));
         return new Ray(p0, pIJ.subtract(p0));
+    }
+
+    /**
+     * Renders the image by casting rays through each pixel of the view plane.
+     *
+     * @return this camera
+     */
+    public Camera renderImage() {
+        for (int i = 0; i < nY; i++) {
+            for (int j = 0; j < nX; j++) {
+                castRay(j, i);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Prints a grid over the rendered image using the specified interval and color.
+     *
+     * @param interval the interval between grid lines
+     * @param color    the color of the grid lines
+     * @return this camera
+     */
+    public Camera printGrid(int interval, Color color) {
+        for (int y = 0; y < nY; y++) {
+            for (int x = 0; x < nX; x++) {
+                if (x % interval == 0 || y % interval == 0)
+                    imageWriter.writePixel(x, y, color);
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Writes the rendered image to a file with the given name.
+     *
+     * @param name the file name to write the image to
+     * @return this camera
+     */
+    public Camera writeToImage(String name) {
+        imageWriter.writeToImage(name);
+        return this;
+    }
+
+    /**
+     * Casts a single ray through a specific pixel (i, j).
+     * This method is intended to be used internally during image rendering.
+     *
+     * @param j the pixel's column index
+     * @param i the pixel's row index
+     */
+    private void castRay(int j, int i) {
+        Ray ray = constructRay(nX, nY, j, i);
+        Color rayColor = rayTracer.traceRay(ray);
+        imageWriter.writePixel(j, i, rayColor);
     }
 
     /**
@@ -185,6 +258,23 @@ public class Camera implements Cloneable {
          * @return this builder
          */
         public Builder setResolution(int nX, int nY) {
+            camera.nX = nX;
+            camera.nY = nY;
+            return this;
+        }
+
+        /**
+         * Sets the ray tracer to be used by the camera for rendering.
+         *
+         * @param scene         the scene to be rendered
+         * @param rayTracerType the type of ray tracer to use
+         * @return this builder
+         */
+        public Builder setRayTracer(Scene scene, RayTracerType rayTracerType) {
+            if (rayTracerType == RayTracerType.SIMPLE)
+                camera.rayTracer = new SimpleRayTracer(scene);
+            else
+                camera.rayTracer = null;
             return this;
         }
 
@@ -255,6 +345,14 @@ public class Camera implements Cloneable {
                     || !Util.isZero(camera.vRight.length() - 1)) {
                 throw new IllegalArgumentException("The vectors must be normalized");
             }
+
+            if (camera.nX <= 0 || camera.nY <= 0)
+                throw new IllegalArgumentException("Nx and Ny must be positive");
+
+            camera.imageWriter = new ImageWriter(camera.nX, camera.nY);
+
+            if (camera.rayTracer == null)
+                camera.rayTracer = new SimpleRayTracer(null);
 
             try {
                 return (Camera) camera.clone();

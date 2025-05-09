@@ -1,5 +1,7 @@
 package primitives;
 
+import java.util.List;
+
 /**
  * Represents a ray in 3D space.
  * A ray is defined by a starting point (head) and a direction vector.
@@ -56,6 +58,29 @@ public class Ray {
             return head;
         return head.add(direction.scale(t));
     }
+
+
+    /**
+     * Finds and returns the point from the given list that is closest to the ray's origin.
+     *
+     * @param points a list of points to search through
+     * @return the closest point to the ray's origin, or {@code null} if the list is {@code null}
+     */
+    public Point findClosestPoint(List<Point> points) {
+        if (points == null)
+            return null;
+        Point closestPoint = null;
+        double minDistance = Double.POSITIVE_INFINITY;
+        for (Point point : points) {
+            double distance = point.distanceSquared(head);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestPoint = point;
+            }
+        }
+        return closestPoint;
+    }
+
 
     @Override
     public boolean equals(Object obj) {
