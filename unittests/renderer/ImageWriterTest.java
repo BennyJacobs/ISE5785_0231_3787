@@ -6,6 +6,7 @@ import renderer.ImageWriter;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for {@link ImageWriter} class
  */
@@ -20,15 +21,23 @@ class ImageWriterTest {
     void writeImageTest() {
         final int nX = 800;
         final int nY = 500;
+        final int interval = 50;
         ImageWriter imageWriter = new ImageWriter(nX, nY);
         final Color gridColor = new Color(255, 0, 0);
         final Color viewPlaneColor = new Color(255, 255, 255);
         for (int y = 0; y < nY; y++) {
             for (int x = 0; x < nX; x++) {
-                if (x%50 == 0 || y%50 == 0)
-                    imageWriter.writePixel(x, y,gridColor);
-                else
-                    imageWriter.writePixel(x, y,viewPlaneColor);
+                imageWriter.writePixel(x, y, viewPlaneColor);
+            }
+        }
+        for (int y = 0; y < nY; y += interval) {
+            for (int x = 0; x < nX; x++) {
+                imageWriter.writePixel(x, y, gridColor);
+            }
+        }
+        for (int y = 0; y < nY; y++) {
+            for (int x = 0; x < nX; x += interval) {
+                imageWriter.writePixel(x, y, gridColor);
             }
         }
         imageWriter.writeToImage("testGrid");
