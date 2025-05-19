@@ -38,7 +38,7 @@ public class Tube extends RadialGeometry {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
         Point rayHead = ray.getHead();
         Point tubeHead = axis.getHead();
 
@@ -49,13 +49,13 @@ public class Tube extends RadialGeometry {
 
         if (rayHead.equals(tubeHead)) {
             if (Util.isZero(dirV))
-                return List.of(ray.getPoint(radius));
+                return List.of(new Intersection(this, ray.getPoint(radius)));
 
             if (rayDirection.equals(axisDirection.scale(dirV)))
                 return null;
 
-            return List.of(ray.getPoint(
-                    radius / rayDirection.subtract(axisDirection.scale(dirV)).length()));
+            return List.of(new Intersection(this, ray.getPoint(
+                    radius / rayDirection.subtract(axisDirection.scale(dirV)).length())));
         }
 
         Vector deltaP = ray.getHead().subtract(tubeHead);
@@ -69,7 +69,7 @@ public class Tube extends RadialGeometry {
             if (Util.isZero(b))
                 return null;
 
-            return List.of(ray.getPoint(-c / b));
+            return List.of(new Intersection(this, ray.getPoint(-c / b)));
         }
 
         double discriminant = Util.alignZero(b * b - 4 * a * c);
@@ -83,16 +83,16 @@ public class Tube extends RadialGeometry {
         if (discriminant <= 0)
             return null;
 
-        List<Point> intersections = null;
+        List<Intersection> intersections = null;
 
         if (t1 > 0) {
             intersections = new LinkedList<>();
-            intersections.add(ray.getPoint(t1));
+            intersections.add(new Intersection(this, ray.getPoint(t1)));
         }
         if (t2 > 0) {
             if (intersections == null)
                 intersections = new LinkedList<>();
-            intersections.add(ray.getPoint(t2));
+            intersections.add(new Intersection(this, ray.getPoint(t2)));
         }
 
         return intersections;

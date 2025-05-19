@@ -1,16 +1,15 @@
 package geometries;
 
-import primitives.Point;
 import primitives.Ray;
 
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A container class for multiple geometric objects that implement {@link Intersectable}.
+ * A container class for multiple geometric objects that extends {@link Intersectable}.
  * Allows treating a collection of geometries as a single unit for intersection tests.
  */
-public class Geometries implements Intersectable{
+public class Geometries extends Intersectable{
     /**
      * Internal list holding the geometries in the collection.
      */
@@ -40,10 +39,10 @@ public class Geometries implements Intersectable{
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
-        List<Point> allIntersections = null;
+    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
+        List<Intersection> allIntersections = null;
         for (Intersectable geometry : geometries) {
-            List<Point> intersections = geometry.findIntersections(ray);
+            var intersections = geometry.calculateIntersections(ray);
             if (intersections != null)
                 if (allIntersections == null)
                     allIntersections = new LinkedList<>(intersections);

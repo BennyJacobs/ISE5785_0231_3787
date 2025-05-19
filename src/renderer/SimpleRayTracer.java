@@ -1,8 +1,8 @@
 package renderer;
 
-import primitives.Color;
-import primitives.Point;
-import primitives.Ray;
+import geometries.Intersectable.Intersection;
+import lighting.LightSource;
+import primitives.*;
 import scene.Scene;
 
 /**
@@ -23,21 +23,93 @@ public class SimpleRayTracer extends RayTracerBase {
 
     @Override
     public Color traceRay(Ray ray) {
-        var intersections = scene.geometries.findIntersections(ray);
-        if (intersections == null)
-            return scene.background;
-        Point pointToColor = ray.findClosestPoint(intersections);
-        return calcColor(pointToColor);
+        var intersections = scene.geometries.calculateIntersections(ray);
+        return intersections == null
+                ? scene.background
+                : calcColor(ray.findClosestIntersection(intersections), ray);
     }
 
     /**
-     * Calculates the color at a given point in the scene.
+     * Calculates the color resulting from the interaction of a ray with an intersection point.
      *
-     *
-     * @param p the point in the scene to calculate the color for
-     * @return the color at the point
+     * @param intersection the intersection in the scene to calculate the color for
+     * @param ray the ray that intersected the geometry
+     * @return the calculated color at the intersection point
      */
-    private Color calcColor(Point p) {
-        return scene.ambientLight.getIntensity();
+    private Color calcColor(Intersection intersection, Ray ray) {
+        if (!preprocessIntersection(intersection, ray.getDirection()))
+            return Color.BLACK;
+        return scene.ambientLight.getIntensity().scale(intersection.material.kA)
+                .add(calcColorLocalEffects(intersection));
+    }
+
+    /**
+     * Prepares intersection data for lighting calculations.
+     *
+     * @param intersection the intersection to process
+     * @param rayDirection the direction of the ray that hit the geometry
+     * @return true if the intersection is valid for lighting calculations, false otherwise
+     */
+    public Boolean preprocessIntersection(Intersection intersection, Vector rayDirection) {
+        intersection.v = rayDirection;
+        intersection.normal = intersection.geometry.getNormal(intersection.point);
+        intersection.vNormal = intersection.v.dotProduct(intersection.normal);
+        return !Util.isZero(intersection.vNormal);
+    }
+
+    /**
+     * Sets the light source information for a given intersection.
+     *
+     * @param intersection the intersection to update
+     * @param lightSource the light source affecting the intersection
+     * @return true if the light contributes to the lighting calculation, false otherwise
+     */
+    public Boolean setLightSource(Intersection intersection, LightSource lightSource) {
+        intersection.light = lightSource;
+        intersection.l = lightSource.getL(intersection.point);
+        intersection.lNormal = intersection.l.dotProduct(intersection.normal);
+        return Util.alignZero(intersection.vNormal * intersection.lNormal) > 0;
+    }
+
+    /**
+     * Calculates the local lighting effects (diffuse and specular) at the intersection point.
+     *
+     * @param intersection the intersection to evaluate
+     * @return the resulting color from all local light sources
+     */
+    private Color calcColorLocalEffects(Intersection intersection) {
+        Color color = intersection.geometry.getEmission();
+        for (LightSource lightSource : scene.lights)
+        {
+            if (!setLightSource(intersection, lightSource))
+                continue;
+            Color iL = lightSource.getIntensity(intersection.point);
+            color = color.add(
+                    iL.scale(calcDiffusive(intersection)
+                            .add(calcSpecular(intersection)))
+            );
+        }
+        return color;
+    }
+
+    /**
+     * Calculates the specular reflection component at the intersection point.
+     *
+     * @param intersection the intersection to evaluate
+     * @return the specular component as a scaling factor
+     */
+    private Double3 calcSpecular(Intersection intersection) {
+        Vector r = intersection.l.add(intersection.normal.scale(intersection.lNormal * -2));
+        return intersection.material.kS.scale(Math.pow(Math.max(0, -1 * intersection.v.dotProduct(r)), intersection.material.nShininess));
+    }
+
+    /**
+     * Calculates the diffuse reflection component at the intersection point.
+     *
+     * @param intersection the intersection to evaluate
+     * @return the diffuse component as a scaling factor
+     */
+    private Double3 calcDiffusive(Intersection intersection) {
+        return intersection.material.kD.scale(Math.abs(intersection.lNormal));
     }
 }

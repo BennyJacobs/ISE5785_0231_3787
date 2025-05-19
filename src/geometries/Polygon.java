@@ -1,6 +1,5 @@
 package geometries;
 
-import static java.lang.Double.*;
 
 import java.util.List;
 
@@ -94,7 +93,7 @@ public class Polygon extends Geometry {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
         List<Point> planeIntersections = plane.findIntersections(ray);
         if (planeIntersections == null) {
             return null;
@@ -127,8 +126,6 @@ public class Polygon extends Geometry {
             if (dotProduct == 0 || (dotProduct > 0) != isPositive)
                 return null;  // Return null if dotProduct is zero or signs don't match
         }
-
-
-        return planeIntersections;
+        return List.of(new Intersection(this, planeIntersections.getFirst()));
     }
 }

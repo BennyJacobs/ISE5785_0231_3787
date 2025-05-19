@@ -8,12 +8,7 @@ import primitives.Color;
  * Ambient light is a non-directional, constant light source that uniformly illuminates all objects in the scene.
  * It simulates indirect light that is scattered and reflected in the environment.
  */
-public class AmbientLight {
-
-    /**
-     * The color intensity of the ambient light.
-     */
-    private final Color intensity;
+public class AmbientLight extends Light {
 
     /**
      * A constant representing no ambient light (intensity of black).
@@ -26,15 +21,6 @@ public class AmbientLight {
      * @param intensity the color intensity of the ambient light
      */
     public AmbientLight(Color intensity) {
-        this.intensity = intensity;
-    }
-
-    /**
-     * Returns the intensity of the ambient light.
-     *
-     * @return the {@link Color} representing the ambient light intensity
-     */
-    public Color getIntensity() {
-        return intensity;
+        super(intensity);
     }
 }

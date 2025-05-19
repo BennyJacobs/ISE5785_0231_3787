@@ -52,7 +52,7 @@ public class Plane extends Geometry {
     }
 
     @Override
-    public List<Point> findIntersections(Ray ray) {
+    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
         Point head = ray.getHead();
         if (q.equals(head))
             return null;
@@ -63,7 +63,7 @@ public class Plane extends Geometry {
             return null;
         double t = Util.alignZero(nominator / denominator);
         if (t > 0)
-            return List.of(ray.getPoint(t));
+            return List.of(new Intersection(this, ray.getPoint(t)));
         return null;
     }
 }
