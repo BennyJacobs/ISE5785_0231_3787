@@ -168,6 +168,9 @@ public class Camera implements Cloneable {
      * Builder class for constructing a {@link Camera} instance using the builder pattern.
      */
     public static class Builder {
+        /**
+         * Camera object for the builder
+         */
         private final Camera camera = new Camera();
 
         /**
@@ -282,6 +285,9 @@ public class Camera implements Cloneable {
             return this;
         }
 
+        /**
+         * Constants representing error message
+         */
         private static final String MISSING_RENDER_DATA = "Missing rendering data";
         private static final String CAMERA_CLASS_NAME = "Camera";
 

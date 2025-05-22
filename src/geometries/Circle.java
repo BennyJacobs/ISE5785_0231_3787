@@ -28,6 +28,7 @@ public class Circle extends RadialGeometry {
      *
      * @param center the center point of the circle
      * @param radius the radius of the circle
+     * @param normal the normal to the circle's plane
      */
     public Circle(Point center, double radius, Vector normal) {
         super(radius);
