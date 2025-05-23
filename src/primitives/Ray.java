@@ -20,6 +20,11 @@ public class Ray {
     private final Vector direction;
 
     /**
+     * A constant to prevent self-intersecting
+     */
+    private static final double DELTA = 0.1;
+
+    /**
      * Constructs a ray with a starting point and a direction.
      *
      * @param head      the starting point of the ray
@@ -30,6 +35,27 @@ public class Ray {
         this.direction = direction.normalize();
     }
 
+    /**
+     * Constructs a ray with a starting point, a direction vector, and a surface normal for biasing.
+     * <p>
+     * This constructor is used to offset the ray origin slightly along the normal direction,
+     * which helps avoid self-intersections (e.g., in shadow rays or reflected rays).
+     * The ray origin is moved by a small constant {@code DELTA} along the normal direction,
+     * depending on whether the ray is pointing in the same direction as the normal or the opposite.
+     * </p>
+     *
+     * @param head the original starting point of the ray (before offset)
+     * @param direction the direction vector of the ray (will be normalized)
+     * @param normal the surface normal at the point of origin, used for offsetting the ray to prevent self-intersection
+     */
+    public Ray(Point head, Vector direction, Vector normal) {
+        this.direction = direction.normalize();
+        double side = direction.dotProduct(normal);
+        if (Util.isZero(side))
+            this.head = head;
+        else
+            this.head = head.add(normal.scale(side > 0 ? DELTA : -DELTA));
+    }
 
     /**
      * Returns the head of the vector.
