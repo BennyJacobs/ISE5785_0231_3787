@@ -40,10 +40,10 @@ public class Circle extends RadialGeometry {
     public Vector getNormal(Point point) { return plane.getNormal(point); }
 
     @Override
-    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
-        List<Point> intersections = plane.findIntersections(ray);
-        if (intersections != null && Util.alignZero(center.distance(intersections.getFirst()) - radius) < 0)
-            return List.of(new Intersection(this, intersections.getFirst()));
+    public List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
+        List<Intersection> intersections = plane.calculateIntersections(ray, maxDistance);
+        if (intersections != null && Util.alignZero(center.distance(intersections.getFirst().point) - radius) < 0)
+            return List.of(new Intersection(this, intersections.getFirst().point));
         return null;
     }
 }

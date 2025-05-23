@@ -62,10 +62,10 @@ public class Cylinder extends Tube {
     }
 
     @Override
-    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
+    public List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
         Point baseCenter = axis.getHead();
         List<Intersection> intersections = null;
-        var list = super.calculateIntersectionsHelper(ray);
+        var list = super.calculateIntersectionsHelper(ray, maxDistance);
         if (list != null)
             for (Intersection intersection : list) {
                 double distance = Util.alignZero(intersection.point.subtract(baseCenter).dotProduct(axis.getDirection()));
@@ -77,10 +77,10 @@ public class Cylinder extends Tube {
             }
 
         // Check intersection with bottom base
-        intersections = getIntersections(ray, bottomBase, intersections);
+        intersections = getIntersections(ray, bottomBase, intersections, maxDistance);
 
         // Check intersection with top base
-        intersections = getIntersections(ray, topBase, intersections);
+        intersections = getIntersections(ray, topBase, intersections, maxDistance);
 
         return intersections;
     }
@@ -91,14 +91,15 @@ public class Cylinder extends Tube {
      * @param ray            the ray to intersect
      * @param circle         the circular base (either bottom or top)
      * @param intersections  the existing list of intersections
+     * @param maxDistance the maximum allowed distance from the ray's origin to an intersection point
      * @return an updated list of intersections including any new intersection with the given circle
      */
-    private List<Intersection> getIntersections(Ray ray, Circle circle, List<Intersection> intersections) {
-        var list = circle.findIntersections(ray);
+    private List<Intersection> getIntersections(Ray ray, Circle circle, List<Intersection> intersections, double maxDistance) {
+        var list = circle.calculateIntersections(ray, maxDistance);
         if (list != null) {
             if (intersections == null)
                 intersections = new LinkedList<>();
-            intersections.add(new Intersection(this, list.getFirst()));
+            intersections.add(new Intersection(this, list.getFirst().point));
         }
         return intersections;
     }

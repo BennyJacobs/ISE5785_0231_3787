@@ -21,6 +21,11 @@ public class SimpleRayTracer extends RayTracerBase {
         super(scene);
     }
 
+    /**
+     * A constant shadow ray bias to prevent self-shadowing
+     */
+    private static final double DELTA = 0.1;
+
     @Override
     public Color traceRay(Ray ray) {
         var intersections = scene.geometries.calculateIntersections(ray);
@@ -81,7 +86,7 @@ public class SimpleRayTracer extends RayTracerBase {
         Color color = intersection.geometry.getEmission();
         for (LightSource lightSource : scene.lights)
         {
-            if (!setLightSource(intersection, lightSource))
+            if (!setLightSource(intersection, lightSource) || !unshaded(intersection))
                 continue;
             Color iL = lightSource.getIntensity(intersection.point);
             color = color.add(
@@ -112,4 +117,18 @@ public class SimpleRayTracer extends RayTracerBase {
     private Double3 calcDiffusive(Intersection intersection) {
         return intersection.material.kD.scale(Math.abs(intersection.lNormal));
     }
+
+    /**
+     * Determines whether the intersection point is not shadowed with respect to the current light source.
+     *
+     * @param intersection the intersection point to evaluate
+     * @return true if the point is not shadowed (i.e., light reaches it), false otherwise
+     */
+    private boolean unshaded(Intersection intersection) {
+        Vector pointToLight = intersection.l.scale(-1);
+        Vector delta = intersection.normal.scale(intersection.lNormal < 0 ? DELTA : -DELTA);
+        return scene.geometries.calculateIntersections(new Ray(intersection.point.add(delta), pointToLight),
+                intersection.light.getDistance(intersection.point)) == null;
+    }
+
 }

@@ -24,12 +24,12 @@ public class Triangle extends Polygon {
     }
 
     @Override
-    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
-        var intersections = plane.findIntersections(ray);
-        if (intersections == null || intersections.getFirst().equals(vertices.get(0)))
+    public List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
+        var intersections = plane.calculateIntersections(ray, maxDistance);
+        if (intersections == null || intersections.getFirst().point.equals(vertices.get(0)))
             return null;
         
-        Point intersect = intersections.getFirst();
+        Point intersect = intersections.getFirst().point;
 
         Vector v1 = vertices.get(2).subtract(vertices.get(0));
         Vector v2 = vertices.get(1).subtract(vertices.get(0));

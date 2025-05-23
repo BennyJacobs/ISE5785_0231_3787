@@ -40,20 +40,38 @@ public abstract class Intersectable {
      * @return a list of {@link Intersection} objects, or {@code null} if there are no intersections
      */
     public final List<Intersection> calculateIntersections(Ray ray) {
-        return calculateIntersectionsHelper(ray);
+        return calculateIntersectionsHelper(ray, Double.POSITIVE_INFINITY);
     }
 
     /**
-     * Protected abstract method for calculating intersections.
+     * Calculates the intersections between the ray and the geometry.
      * <p>
-     * Subclasses must implement this method to provide the specific intersection logic.
-     * This method is called internally by the public NVI method.
+     * This is the public method called by external users, which delegates to the internal helper method.
      * </p>
      *
      * @param ray the ray to intersect with
-     * @return a list of {@link Intersection} objects, or {@code null} if there are no intersections
+     * @param maxDistance the maximum distance from the ray origin to consider for intersections
+     * @return a list of {@link Intersection} objects representing valid intersections within the distance limit,
+     *      or {@code null} if there are no intersections
      */
-    protected abstract List<Intersection> calculateIntersectionsHelper(Ray ray);
+    public final List<Intersection> calculateIntersections(Ray ray, double maxDistance) {
+        return calculateIntersectionsHelper(ray, maxDistance);
+    }
+
+    /**
+     * Calculates the intersections between the ray and the geometry, limited to a maximum distance.
+     * <p>
+     * This method must be implemented by subclasses to define the geometry-specific intersection logic.
+     * Called internally by the public methods in accordance with the Non-Virtual Interface (NVI) pattern.
+     * </p>
+     *
+     * @param ray the ray to intersect with the geometry
+     * @param maxDistance the maximum allowed distance from the ray's origin to an intersection point
+     * @return a list of {@link Intersection} objects representing valid intersections within the distance limit,
+     *         or {@code null} if there are no intersections
+     */
+    protected abstract List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance);
+
 
     /**
      * Represents an intersection between a ray and a geometry object.

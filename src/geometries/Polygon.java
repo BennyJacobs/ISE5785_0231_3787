@@ -93,8 +93,8 @@ public class Polygon extends Geometry {
     }
 
     @Override
-    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
-        List<Point> planeIntersections = plane.findIntersections(ray);
+    public List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
+        List<Intersection> planeIntersections = plane.calculateIntersections(ray, maxDistance);
         if (planeIntersections == null) {
             return null;
         }
@@ -126,6 +126,6 @@ public class Polygon extends Geometry {
             if (dotProduct == 0 || (dotProduct > 0) != isPositive)
                 return null;  // Return null if dotProduct is zero or signs don't match
         }
-        return List.of(new Intersection(this, planeIntersections.getFirst()));
+        return List.of(new Intersection(this, planeIntersections.getFirst().point));
     }
 }

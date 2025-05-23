@@ -38,7 +38,7 @@ public class Tube extends RadialGeometry {
     }
 
     @Override
-    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
+    public List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
         Point rayHead = ray.getHead();
         Point tubeHead = axis.getHead();
 
@@ -49,13 +49,12 @@ public class Tube extends RadialGeometry {
 
         if (rayHead.equals(tubeHead)) {
             if (Util.isZero(dirV))
-                return List.of(new Intersection(this, ray.getPoint(radius)));
+                return Util.alignZero(radius - maxDistance) < 0 ? List.of(new Intersection(this, ray.getPoint(radius))) : null;
 
             if (rayDirection.equals(axisDirection.scale(dirV)))
                 return null;
-
-            return List.of(new Intersection(this, ray.getPoint(
-                    radius / rayDirection.subtract(axisDirection.scale(dirV)).length())));
+            double t = radius / rayDirection.subtract(axisDirection.scale(dirV)).length();
+            return Util.alignZero(t - maxDistance) < 0 ? List.of(new Intersection(this, ray.getPoint(t))) : null;
         }
 
         Vector deltaP = ray.getHead().subtract(tubeHead);
@@ -69,7 +68,7 @@ public class Tube extends RadialGeometry {
             if (Util.isZero(b))
                 return null;
 
-            return List.of(new Intersection(this, ray.getPoint(-c / b)));
+            return Util.alignZero(-c / b - maxDistance) < 0 ? List.of(new Intersection(this, ray.getPoint(-c / b))) : null;
         }
 
         double discriminant = Util.alignZero(b * b - 4 * a * c);
@@ -85,11 +84,11 @@ public class Tube extends RadialGeometry {
 
         List<Intersection> intersections = null;
 
-        if (t1 > 0) {
+        if (t1 > 0 && Util.alignZero(t1 - maxDistance) < 0) {
             intersections = new LinkedList<>();
             intersections.add(new Intersection(this, ray.getPoint(t1)));
         }
-        if (t2 > 0) {
+        if (t2 > 0 && Util.alignZero(t2 - maxDistance) < 0) {
             if (intersections == null)
                 intersections = new LinkedList<>();
             intersections.add(new Intersection(this, ray.getPoint(t2)));

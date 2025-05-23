@@ -39,10 +39,10 @@ public class Geometries extends Intersectable{
     }
 
     @Override
-    public List<Intersection> calculateIntersectionsHelper(Ray ray) {
+    public List<Intersection> calculateIntersectionsHelper(Ray ray, double maxDistance) {
         List<Intersection> allIntersections = null;
         for (Intersectable geometry : geometries) {
-            var intersections = geometry.calculateIntersections(ray);
+            var intersections = geometry.calculateIntersections(ray, maxDistance);
             if (intersections != null)
                 if (allIntersections == null)
                     allIntersections = new LinkedList<>(intersections);
