@@ -233,7 +233,7 @@ class ReflectionRefractionTests {
 
 
         );
-        double houseTopZ = 200;
+        double houseTopZ = 600;
         double houseTopY = 200;
         double houseTopX = 120;
         double houseMinZ = -200;
@@ -304,7 +304,7 @@ class ReflectionRefractionTests {
         );
 
         cameraBuilder
-                .setLocation(new Point(400, 300, 1000)) //
+                .setLocation(new Point(200, 200, 1000)) //
                 .setDirection(new Point(0, 0, -20)) //
                 .setVpDistance(1000).setVpSize(200, 200) //
                 .setResolution(1000, 1000) //
