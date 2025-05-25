@@ -85,13 +85,19 @@ public class Tube extends RadialGeometry {
         List<Intersection> intersections = null;
 
         if (t1 > 0 && Util.alignZero(t1 - maxDistance) < 0) {
-            intersections = new LinkedList<>();
-            intersections.add(new Intersection(this, ray.getPoint(t1)));
+            Point point = ray.getPoint(t1);
+            if (!point.equals(rayHead)) {
+                intersections = new LinkedList<>();
+                intersections.add(new Intersection(this, point));
+            }
         }
         if (t2 > 0 && Util.alignZero(t2 - maxDistance) < 0) {
-            if (intersections == null)
-                intersections = new LinkedList<>();
-            intersections.add(new Intersection(this, ray.getPoint(t2)));
+            Point point = ray.getPoint(t2);
+            if (!point.equals(rayHead)) {
+                if (intersections == null)
+                    intersections = new LinkedList<>();
+                intersections.add(new Intersection(this, ray.getPoint(t2)));
+            }
         }
 
         return intersections;

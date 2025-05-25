@@ -44,9 +44,9 @@ public class Ray {
      * depending on whether the ray is pointing in the same direction as the normal or the opposite.
      * </p>
      *
-     * @param head the original starting point of the ray (before offset)
+     * @param head      the original starting point of the ray (before offset)
      * @param direction the direction vector of the ray (will be normalized)
-     * @param normal the surface normal at the point of origin, used for offsetting the ray to prevent self-intersection
+     * @param normal    the surface normal at the point of origin, used for offsetting the ray to prevent self-intersection
      */
     public Ray(Point head, Vector direction, Vector normal) {
         this.direction = direction.normalize();
@@ -84,7 +84,11 @@ public class Ray {
     public Point getPoint(double t) {
         if (Util.isZero(t))
             return head;
-        return head.add(direction.scale(t));
+        try {
+            return head.add(direction.scale(t));
+        } catch (IllegalArgumentException e) {
+            return head;
+        }
     }
 
 
