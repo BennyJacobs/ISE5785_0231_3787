@@ -76,7 +76,7 @@ public class Cylinder extends Tube {
                 }
             }
 
-        // Check intersection with bottom base
+        // Check intersection with the bottom base
         intersections = getIntersections(ray, bottomBase, intersections, maxDistance);
 
         // Check intersection with top base
