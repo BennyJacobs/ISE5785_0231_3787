@@ -12,13 +12,14 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for {@link Tube} class
  */
 class TubeTest {
+    Tube tube = new Tube(1, new Ray(new Point(0, 0, 1), new Vector(0, 0, 1)));
 
     /**
      * Test method for {@link Tube#getNormal(Point)}
      */
     @Test
     void getNormal() {
-        Tube tube = new Tube(1, new Ray(Point.ZERO, new Vector(1, 0, 0)));
+        final Tube tube = new Tube(1, new Ray(Point.ZERO, new Vector(1, 0, 0)));
 
         // ============ Equivalence Partitions Tests ==============
         // Test Case 1 - Checking the normal vector for correctness
@@ -34,7 +35,6 @@ class TubeTest {
      */
     @Test
     void findIntersectionsTest() {
-        Tube tube = new Tube(1, new Ray(new Point(0, 0, 1), new Vector(0, 0, 1)));
         // ============ Equivalence Partitions Tests ==============
         // Test Case 01 - Ray doesn't intersect the tube (0 points)
         Ray ray = new Ray(new Point(-6, 0, 1), new Vector(6, -4, 3));
@@ -344,5 +344,58 @@ class TubeTest {
         ray = new Ray(new Point(1, -1, 1), new Vector(1, 0, 0));
         result = tube.findIntersections(ray);
         assertNull(result, "ERROR: the intersections' array should be null");
+    }
+
+
+    /**
+     * Test method for {@link Tube#calculateIntersections(Ray, double)}
+     */
+    @Test
+    void calculateIntersections() {
+        // A vector used in some test cases to (1,0,0)
+        Vector v100 = new Vector(1, 0, 0);
+
+        // ============ Equivalence Partitions Tests ==============
+        // Test Case 01 - Ray starts before tube, and maxDistance is smaller than the distance between ray head and tube
+        Ray ray = new Ray(new Point(-2, 0, 0), v100);
+        assertNull(tube.calculateIntersections(ray, 0.5), "Ray's intersection point is greater than maxDistance");
+
+        // TC02: Ray starts before the tube and ends inside it
+        var result = tube.calculateIntersections(ray, 2);
+        assertNotNull(result, "ERROR: the intersections' array should not be null");
+        assertEquals(1, result.size(), "ERROR: Wrong number of intersections");
+
+        //TC03: Ray starts and ends inside the tube
+        ray = new Ray(new Point(-0.5, 0, 0), v100);
+        assertNull(tube.calculateIntersections(ray, 1), "ray starts and stops inside the sphere");
+
+        // TC04: Ray starts inside the tube and ends after it
+        result = tube.calculateIntersections(ray, 3.5);
+        assertNotNull(result, "ERROR: the intersections' array should not be null");
+        assertEquals(1, result.size(), "ERROR: Wrong number of intersections");
+
+        // TC05: Ray starts after tube
+        ray = new Ray(new Point(2, 0, 0), v100);
+        assertNull(tube.calculateIntersections(ray, 3.5), "ray starts after the tube");
+
+        // TC06: Ray crosses the tube, starts before it and ends after it
+        ray = new Ray(new Point(-2, 0, 0), v100);
+        result = tube.calculateIntersections(ray, 8);
+        assertNotNull(result, "ERROR: the intersections' array should not be null");
+        assertEquals(2, result.size(), "ERROR: Wrong number of intersections");
+
+        // =============== Boundary Values Tests ==================
+        // TC01: Ray starts before the tube and ends at the first intersection point
+        result = tube.calculateIntersections(ray, 1);
+        assertNull(result, "ERROR: the intersections' array should not be null");
+
+        // TC02: Ray starts before the tube and ends at the second intersection point
+        result = tube.calculateIntersections(ray, 3);
+        assertNotNull(result, "ERROR: the intersections' array should not be null");
+        assertEquals(1, result.size(), "ERROR: Wrong number of intersections");
+
+        // TC03: Ray starts inside the tube and ends at the intersection point
+        result = tube.calculateIntersections(new Ray(new Point(0, 0, 0), v100), 1);
+        assertNull(result, "ERROR: the intersections' array should not be null");
     }
 }

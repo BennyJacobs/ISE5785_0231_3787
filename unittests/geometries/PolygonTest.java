@@ -122,4 +122,34 @@ class PolygonTests {
         // TC03: Ray's line is on the polygon's edge continuation (0 points)
         assertNull(polygon.findIntersections(new Ray(rayPoint, new Vector(1.5, -0.5, -2))), "Ray's line on polygon's edge continuation");
     }
+
+    /**
+     * Test method for {@link Polygon#calculateIntersections(Ray, double)}
+     */
+    @Test
+    void calculateIntersections() {
+        final Polygon polygon = new Polygon(new Point(1, 0, 0), new Point(-1, 0, 0), new Point(-1, 2, 0), new Point(1, 2, 0));
+
+        // ============ Equivalence Partitions Tests ==============
+        // Test Case 01 - Ray starts before polygon, and maxDistance is smaller than the distance between ray head and polygon
+        Ray ray = new Ray(new Point(0, 1, 2), new Vector(0, 0, -1));
+        assertNull(polygon.calculateIntersections(ray, 1),
+                "Ray's intersection point is greater than maxDistance");
+
+        // Test Case 02 - Ray starts before polygon, and maxDistance is greater than the distance between ray head and polygon
+        var result = polygon.calculateIntersections(ray, 3);
+        assertNotNull(result, "ERROR: the intersections' array should not be null");
+        assertEquals(1, result.size(), "ERROR: Wrong number of intersections");
+
+        // Test Case 03 - Ray starts after polygon
+        ray = new Ray(new Point(0, 1, -1), new Vector(0, 0, -1));
+        assertNull(polygon.calculateIntersections(ray, 1),
+                "ERROR: Wrong number of intersections");
+
+        // =============== Boundary Values Tests ==================
+        // Test Case 01 - Ray ends at polygon
+        ray = new Ray(new Point(0, 1, 2), new Vector(0, 0, -1));
+        assertNull(polygon.calculateIntersections(ray, 2),
+                "ERROR: Wrong number of intersections");
+    }
 }
