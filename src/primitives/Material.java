@@ -46,6 +46,36 @@ public class Material {
      * Higher values produce smaller and sharper specular highlights.
      */
     public int nShininess = 0;
+    /**
+     * Defines the number of sampled rays used for glossy reflection calculations.
+     */
+    public int numOfRaysGlossy = 1;
+
+    /**
+     * Represents the number of rays used for blur in a material.
+     * This value determines the level of sampling used for creating realistic blur effects.
+     */
+    public int numOfRaysBlurry = 1;
+
+    /**
+     * Represents the size of the target area for a glossy surface.
+     */
+    public double targetAreaSizeGlossy = 0.0;
+
+    /**
+     * Represents the size of the target area for a refractive surface.
+     */
+    public double targetAreaSizeBlurry = 0.0;
+
+    /**
+     * Represents the distance of the target area for a glossy surface.
+     */
+    public double targetAreaDistanceGlossy = 0.0;
+
+    /**
+     * Represents the distance of the target area for a refractive surface.
+     */
+    public double targetAreaDistanceBlurry = 0.0;
 
     /**
      * Sets the ambient reflection coefficient using a {@link Double3}.
@@ -166,6 +196,44 @@ public class Material {
      */
     public Material setKR(double kR) {
         return setKR(new Double3(kR));
+    }
+
+    /**
+     * Sets the diffuse/blurry properties for the material.
+     *
+     * @param numOfRaysBlurry the number of rays for diffuse calculations; must be at least 2
+     * @param targetAreaSizeBlurry the size of the target area for diffuse calculations; must be greater than 0
+     * @param targetAreaDistanceBlurry the distance to the target area for diffuse calculations; must be greater than 0
+     * @return the current {@code Material} object for method chaining
+     * @throws IllegalArgumentException if {@code numOfRaysBlurry < 2}, {@code targetAreaSizeBlurry <= 0},
+     *                                   or {@code targetAreaDistanceBlurry <= 0}
+     */
+    public Material setDiffuseProperties(int numOfRaysBlurry, double targetAreaSizeBlurry, double targetAreaDistanceBlurry) {
+        if (numOfRaysBlurry < 2 || targetAreaSizeBlurry <= 0 || targetAreaDistanceBlurry <= 0)
+            throw new IllegalArgumentException("Invalid number of rays or target area size or distance");
+        this.numOfRaysBlurry = numOfRaysBlurry;
+        this.targetAreaSizeBlurry = targetAreaSizeBlurry;
+        this.targetAreaDistanceBlurry = targetAreaDistanceBlurry;
+        return this;
+    }
+
+    /**
+     * Sets the glossy properties for the material.
+     *
+     * @param numOfRaysGlossy the number of rays for glossy calculations; must be at least 2
+     * @param targetAreaSizeGlossy the size of the target area for glossy calculations; must be greater than 0
+     * @param targetAreaDistanceGlossy the distance to the target area for glossy calculations; must be greater than 0
+     * @return the current {@code Material} object for method chaining
+     * @throws IllegalArgumentException if {@code numOfRaysGlossy < 2}, {@code targetAreaSizeGlossy <= 0},
+     *                                   or {@code targetAreaDistanceGlossy <= 0}
+     */
+    public Material setGlossyProperties(int numOfRaysGlossy, double targetAreaSizeGlossy, double targetAreaDistanceGlossy) {
+        if (numOfRaysGlossy < 2 || targetAreaSizeGlossy <= 0 || targetAreaDistanceGlossy <= 0)
+            throw new IllegalArgumentException("Invalid number of rays or target area size or distance");
+        this.numOfRaysGlossy = numOfRaysGlossy;
+        this.targetAreaSizeGlossy = targetAreaSizeGlossy;
+        this.targetAreaDistanceGlossy = targetAreaDistanceGlossy;
+        return this;
     }
 
 }
