@@ -2,6 +2,8 @@ package primitives;
 
 import geometries.Intersectable.Intersection;
 
+import java.lang.annotation.Target;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -122,6 +124,20 @@ public class Ray {
             }
         }
         return closestIntersection;
+    }
+
+
+    public List<Ray> createBeam(double distance, double radius, int numRays, TargetArea.SamplingPattern samplingPattern) {
+        TargetArea targetArea = new TargetArea(this, radius, distance, numRays, samplingPattern);
+        List<Ray> intersectionRays = null;
+        List<Point> intersectionPoints = targetArea.generatePoints();
+        for(Point point : intersectionPoints) {
+            if (intersectionRays == null)
+                intersectionRays = new LinkedList<>();
+            intersectionRays.add(new Ray(head, point.subtract(head)));
+        }
+
+        return intersectionRays;
     }
 
 

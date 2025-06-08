@@ -5,6 +5,8 @@ import lighting.LightSource;
 import primitives.*;
 import scene.Scene;
 
+import java.util.List;
+
 /**
  * A basic ray tracer for evaluating rays in a scene.
  * <p>
@@ -211,8 +213,18 @@ public class SimpleRayTracer extends RayTracerBase {
      * @return the resulting color from global lighting effects
      */
     private Color calcGlobalEffects(Intersection intersection, int level, Double3 k) {
-        return calcGlobalEffect(constructRefractedRay(intersection), level, k, intersection.material.kT)
-                .add(calcGlobalEffect(constructReflectedRay(intersection), level, k, intersection.material.kR));
+        List<Ray> refractedBeam = constructRefractedRay(intersection).createBeam(intersection.material.targetAreaDistanceBlurry, intersection.material.targetAreaSizeBlurry, intersection.material.numOfRaysBlurry, scene.samplingPattern);
+        List<Ray> reflectedBeam = constructReflectedRay(intersection).createBeam(intersection.material.targetAreaDistanceGlossy, intersection.material.targetAreaSizeGlossy, intersection.material.numOfRaysGlossy, scene.samplingPattern);
+
+        Color refractedColor = Color.BLACK;
+        Color reflectedColor = Color.BLACK;
+
+        for (Ray intersectionRay: refractedBeam)
+            refractedColor.add(calcGlobalEffect(intersectionRay, level, k, intersection.material.kT));
+        for (Ray intersectionRay: refractedBeam)
+            reflectedColor.add(calcGlobalEffect(intersectionRay, level, k, intersection.material.kT));
+
+        return refractedColor.reduce(refractedBeam.size()).add(reflectedColor.reduce(reflectedBeam.size()));
     }
 
     /**
