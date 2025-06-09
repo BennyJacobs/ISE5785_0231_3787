@@ -128,16 +128,17 @@ public class Ray {
 
 
     public List<Ray> createBeam(double distance, double radius, int numRays, TargetArea.SamplingPattern samplingPattern) {
-        TargetArea targetArea = new TargetArea(this, radius, distance, numRays, samplingPattern);
-        List<Ray> intersectionRays = null;
-        List<Point> intersectionPoints = targetArea.generatePoints();
-        for(Point point : intersectionPoints) {
-            if (intersectionRays == null)
-                intersectionRays = new LinkedList<>();
-            intersectionRays.add(new Ray(head, point.subtract(head)));
-        }
+        if (numRays > 1) {
+            TargetArea targetArea = new TargetArea(this, radius, distance, numRays, samplingPattern);
+            List<Ray> intersectionRays = new LinkedList<>();
+            List<Point> intersectionPoints = targetArea.generatePoints();
+            for (Point point : intersectionPoints) {
+                intersectionRays.add(new Ray(head, point.subtract(head)));
+            }
 
-        return intersectionRays;
+            return intersectionRays;
+        }
+        return List.of(this);
     }
 
 

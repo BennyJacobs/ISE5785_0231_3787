@@ -213,19 +213,56 @@ public class SimpleRayTracer extends RayTracerBase {
      * @return the resulting color from global lighting effects
      */
     private Color calcGlobalEffects(Intersection intersection, int level, Double3 k) {
-        List<Ray> refractedBeam = constructRefractedRay(intersection).createBeam(intersection.material.targetAreaDistanceBlurry, intersection.material.targetAreaSizeBlurry, intersection.material.numOfRaysBlurry, scene.samplingPattern);
-        List<Ray> reflectedBeam = constructReflectedRay(intersection).createBeam(intersection.material.targetAreaDistanceGlossy, intersection.material.targetAreaSizeGlossy, intersection.material.numOfRaysGlossy, scene.samplingPattern);
-
         Color refractedColor = Color.BLACK;
         Color reflectedColor = Color.BLACK;
 
-        for (Ray intersectionRay: refractedBeam)
-            refractedColor.add(calcGlobalEffect(intersectionRay, level, k, intersection.material.kT));
-        for (Ray intersectionRay: refractedBeam)
-            reflectedColor.add(calcGlobalEffect(intersectionRay, level, k, intersection.material.kT));
+        if (intersection.material.targetAreaSizeBlurry == 0.0 || intersection.material.targetAreaDistanceBlurry == 0.0) {
 
-        return refractedColor.reduce(refractedBeam.size()).add(reflectedColor.reduce(reflectedBeam.size()));
+            Ray refractedRay = constructRefractedRay(intersection);
+            refractedColor = calcGlobalEffect(refractedRay, level, k, intersection.material.kT);
+
+        }
+        else {
+            List<Ray> refractedBeam = constructRefractedRay(intersection)
+                    .createBeam(intersection.material.targetAreaDistanceBlurry,
+                            intersection.material.targetAreaSizeBlurry,
+                            intersection.material.numOfRaysBlurry,
+                            scene.samplingPattern);
+
+            for (Ray ray : refractedBeam) {
+                refractedColor = refractedColor.add(
+                        calcGlobalEffect(ray, level, k, intersection.material.kT)
+                );
+            }
+
+            refractedColor = refractedColor.reduce(refractedBeam.size());
+        }
+
+        if (intersection.material.targetAreaSizeGlossy == 0.0 ||
+                intersection.material.targetAreaDistanceGlossy == 0.0) {
+            Ray reflectedRay = constructReflectedRay(intersection);
+            reflectedColor = calcGlobalEffect(reflectedRay, level, k, intersection.material.kR);
+
+        }
+        else {
+            List<Ray> reflectedBeam = constructReflectedRay(intersection)
+                    .createBeam(intersection.material.targetAreaDistanceGlossy,
+                            intersection.material.targetAreaSizeGlossy,
+                            intersection.material.numOfRaysGlossy,
+                            scene.samplingPattern);
+
+            for (Ray ray : reflectedBeam) {
+                reflectedColor = reflectedColor.add(
+                        calcGlobalEffect(ray, level, k, intersection.material.kR)
+                );
+            }
+
+            reflectedColor = reflectedColor.reduce(reflectedBeam.size());
+        }
+
+        return refractedColor.add(reflectedColor);
     }
+
 
     /**
      * Calculates the global color contribution from a single reflected or refracted ray.
