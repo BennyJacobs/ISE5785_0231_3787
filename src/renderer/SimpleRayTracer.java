@@ -1,7 +1,9 @@
 package renderer;
 
 import geometries.Intersectable.Intersection;
+import lighting.DirectionalLight;
 import lighting.LightSource;
+import lighting.PointLight;
 import primitives.*;
 import scene.Scene;
 
@@ -187,6 +189,35 @@ public class SimpleRayTracer extends RayTracerBase {
      * @return the accumulated transparency factor along the path to the light source
      */
     private Double3 transparency(Intersection intersection) {
+        if (!(intersection.light instanceof DirectionalLight) && ((PointLight) intersection.light).getRadius() != 0.0
+        && ((PointLight) intersection.light).getNumOfRays() != 0.0) {
+            Ray mainRay = new Ray(intersection.point, intersection.l.scale(-1), intersection.normal);
+            CircleTargetArea targetArea = new CircleTargetArea(
+                    ((PointLight) intersection.light).getRadius(),
+                    mainRay,
+                    intersection.light.getDistance(intersection.point),
+                    ((PointLight) intersection.light).getNumOfRays(),
+                    scene.samplingPattern
+            );
+            List<Ray> rayBeam = mainRay.createBeam(targetArea);
+            Double3 ktrTotal = Double3.ZERO;
+            for (Ray ray : rayBeam) {
+                var intersections = scene.geometries.calculateIntersections(
+                        ray,
+                        intersection.light.getDistance(intersection.point));
+                Double3 ktr = Double3.ONE;
+                if (intersections != null) {
+                    for (Intersection i : intersections) {
+                        if (i.material.kT.lowerThan(MIN_CALC_COLOR_K))
+                            return Double3.ZERO;
+                        ktr = ktr.product(i.material.kT);
+                    }
+                }
+                ktrTotal = ktrTotal.add(ktr);
+            }
+            return ktrTotal.reduce(rayBeam.size());
+        }
+
         var intersections = scene.geometries.calculateIntersections(
                 new Ray(intersection.point, intersection.l.scale(-1), intersection.normal),
                 intersection.light.getDistance(intersection.point));
@@ -201,7 +232,6 @@ public class SimpleRayTracer extends RayTracerBase {
             }
         }
         return ktr;
-
     }
 
     /**

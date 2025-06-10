@@ -1,8 +1,6 @@
 package lighting;
 
-import primitives.Color;
-import primitives.Vector;
-import primitives.Point;
+import primitives.*;
 
 /**
  * Represents a point light source that emits light equally in all directions
@@ -29,6 +27,9 @@ public class PointLight extends Light implements LightSource {
      */
     private double kQ = 0;
 
+    private double radius;
+
+    private int numOfRays;
 
     /**
      * Constructs a point light with specified intensity and position.
@@ -72,6 +73,52 @@ public class PointLight extends Light implements LightSource {
     public PointLight setKq(double q) {
         this.kQ = q;
         return this;
+    }
+
+    /**
+     * Sets the radius of the light source.
+     *
+     * @param radius the radius of the light source
+     * @return the current {@code PointLight} instance
+     * @throws IllegalArgumentException if radius is negative
+     */
+    public PointLight setRadius(double radius) {
+        if (Util.alignZero(radius) < 0)
+            throw new IllegalArgumentException("Distance must not be negative");
+        this.radius = radius;
+        return this;
+    }
+
+    /**
+     * Sets the number of super sampling rays for soft-shadows algorithm
+     *
+     * @param numOfRays the distance value
+     * @return the current {@code PointLight} instance
+     * @throws IllegalArgumentException if numOfRays is smaller than 1
+     */
+    public PointLight setNumOfRays(int numOfRays) {
+        if (numOfRays < 1)
+            throw new IllegalArgumentException("Number of super sampling rays must not be smaller than 1");
+        this.numOfRays = numOfRays;
+        return this;
+    }
+
+    /**
+     * Gets the radius of the light source.
+     *
+     * @return the radius of the light source
+     */
+    public double getRadius() {
+        return this.radius;
+    }
+
+    /**
+     * Gets the number of super sampling rays for soft-shadows algorithm
+     *
+     * @return the number of super sampling rays for soft-shadows algorithm
+     */
+    public int getNumOfRays() {
+        return this.numOfRays;
     }
 
     @Override
