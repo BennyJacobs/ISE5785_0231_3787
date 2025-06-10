@@ -217,17 +217,19 @@ public class SimpleRayTracer extends RayTracerBase {
         Color reflectedColor = Color.BLACK;
 
         if (intersection.material.targetAreaSizeBlurry == 0.0 ||
-                intersection.material.targetAreaDistanceBlurry == 0.0) {
+                intersection.material.targetAreaDistanceBlurry == 0.0 || intersection.material.numOfRaysBlurry == 1) {
             Ray refractedRay = constructRefractedRay(intersection);
             refractedColor = calcGlobalEffect(refractedRay, level, k, intersection.material.kT);
 
         }
         else {
+            TargetArea targetArea = new TargetArea(constructRefractedRay(intersection),
+                    intersection.material.targetAreaSizeBlurry,
+                    intersection.material.targetAreaDistanceBlurry,
+                    intersection.material.numOfRaysBlurry,
+                    scene.samplingPattern);
             List<Ray> refractedBeam = constructRefractedRay(intersection)
-                    .createBeam(intersection.material.targetAreaDistanceBlurry,
-                            intersection.material.targetAreaSizeBlurry,
-                            intersection.material.numOfRaysBlurry,
-                            scene.samplingPattern);
+                    .createBeam(targetArea);
 
             for (Ray ray : refractedBeam) {
                 if (Util.alignZero(ray.getDirection().dotProduct(intersection.geometry.getNormal(intersection.point))) > 0)
@@ -238,17 +240,19 @@ public class SimpleRayTracer extends RayTracerBase {
         }
 
         if (intersection.material.targetAreaSizeGlossy == 0.0 ||
-                intersection.material.targetAreaDistanceGlossy == 0.0) {
+                intersection.material.targetAreaDistanceGlossy == 0.0 || intersection.material.numOfRaysGlossy == 1) {
             Ray reflectedRay = constructReflectedRay(intersection);
             reflectedColor = calcGlobalEffect(reflectedRay, level, k, intersection.material.kR);
 
         }
         else {
+            TargetArea targetArea = new TargetArea(constructReflectedRay(intersection),
+                    intersection.material.targetAreaSizeGlossy,
+                    intersection.material.targetAreaDistanceGlossy,
+                    intersection.material.numOfRaysGlossy,
+                    scene.samplingPattern);
             List<Ray> reflectedBeam = constructReflectedRay(intersection)
-                    .createBeam(intersection.material.targetAreaDistanceGlossy,
-                            intersection.material.targetAreaSizeGlossy,
-                            intersection.material.numOfRaysGlossy,
-                            scene.samplingPattern);
+                    .createBeam(targetArea);
 
             for (Ray ray : reflectedBeam) {
                 if (Util.alignZero(ray.getDirection().dotProduct(intersection.normal)) > 0)

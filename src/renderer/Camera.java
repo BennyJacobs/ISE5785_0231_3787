@@ -71,22 +71,26 @@ public class Camera implements Cloneable {
      */
     private int nY = 1;
 
-    private int numOfRays = 1000;
-
-    private TargetArea.SamplingPattern samplingPattern = TargetArea.SamplingPattern.GRID;
+    /**
+     * Number of super sampling rays for antialiasing algorithm.
+     */
+    private int numOfRays = 1;
 
     /** Amount of threads to use fore rendering image by the camera */
     private int threadsCount = 0;
+
     /**
      * Amount of threads to spare for Java VM threads:<br>
      * Spare threads if trying to use all the cores
      */
     private static final int SPARE_THREADS = 2;
+
     /**
      * Debug print interval in seconds (for progress percentage)<br>
      * if it is zero - there is no progress output
      */
     private double printInterval = 0;
+
     /**
      * Pixel manager for supporting:
      * <ul>
@@ -153,7 +157,7 @@ public class Camera implements Cloneable {
     }
 
     /**
-     * Constructs a ray through a specific pixel on the view plane.
+     * Constructs rays through a specific pixel on the view plane.
      *
      * @param nX number of pixels in the X axis (width)
      * @param nY number of pixels in the Y axis (height)
@@ -173,7 +177,7 @@ public class Camera implements Cloneable {
         if (!Util.isZero(yI))
             pIJ = pIJ.add(vUp.scale(yI));
         Ray mainRay = new Ray(p0, pIJ.subtract(p0));
-        if (numOfRays <= 1)
+        if (numOfRays == 1)
             return List.of(mainRay);
         TargetArea targetArea = new TargetArea();
         return mainRay.createBeam(targetArea);
@@ -191,7 +195,6 @@ public class Camera implements Cloneable {
             default -> renderImageRawThreads();
         };
     }
-
 
     /**
      * Prints a grid over the rendered image using the specified interval and color.
@@ -363,6 +366,20 @@ public class Camera implements Cloneable {
         }
 
         /**
+         * Sets the number of super sampling rays for antialiasing algorithm
+         *
+         * @param numOfRays the distance value
+         * @return this builder
+         * @throws IllegalArgumentException if numOfRays is smaller than 1
+         */
+        public Builder setNumOfRays(int numOfRays) {
+            if (numOfRays < 1)
+                throw new IllegalArgumentException("Number of super sampling rays must not be smaller than 1");
+            camera.numOfRays = numOfRays;
+            return this;
+        }
+
+        /**
          * Set multi-threading <br>
          * Parameter value meaning:
          * <ul>
@@ -384,6 +401,7 @@ public class Camera implements Cloneable {
                 camera.threadsCount = threads;
             return this;
         }
+
         /**
          * Set debug printing interval. If it's zero - there won't be printing at all
          * @param interval printing interval in %

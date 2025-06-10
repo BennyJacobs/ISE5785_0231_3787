@@ -126,21 +126,12 @@ public class Ray {
         return closestIntersection;
     }
 
-
-    public List<Ray> createBeam(double distance, double radius, int numRays, TargetArea.SamplingPattern samplingPattern) {
-        if (numRays > 1) {
-            TargetArea targetArea = new TargetArea(this, radius, distance, numRays, samplingPattern);
-            List<Ray> beamRays = new LinkedList<>();
-            List<Point> beamPoints = targetArea.generatePoints();
-            for (Point point : beamPoints) {
-                beamRays.add(new Ray(head, point.subtract(head)));
-            }
-
-            return beamRays;
-        }
-        return List.of(this);
-    }
-
+    /**
+     * Generates a list of rays ("beam") according to a given target area
+     *
+     * @param targetArea the area the beam is directed through
+     * @return a list of rays representing the beam
+     */
     public List<Ray> createBeam(TargetArea targetArea) {
         List<Ray> beamRays = new LinkedList<>();
         List<Point> beamPoints = targetArea.generatePoints();
@@ -148,7 +139,6 @@ public class Ray {
             beamRays.add(new Ray(head, point.subtract(head)));
         return beamRays;
     }
-
 
     @Override
     public boolean equals(Object obj) {
