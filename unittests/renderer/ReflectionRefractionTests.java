@@ -308,6 +308,8 @@ class ReflectionRefractionTests {
                 .setDirection(new Point(0, 0, -20)) //
                 .setVpDistance(1000).setVpSize(200, 200) //
                 .setResolution(1000, 1000) //
+                .setMultithreading(4)
+                .setDebugPrint(5)
                 .build() //
                 .renderImage() //
                 .writeToImage("allEffects");

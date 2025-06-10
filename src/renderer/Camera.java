@@ -76,17 +76,17 @@ public class Camera implements Cloneable {
      */
     private int numOfRays = 1;
 
-    /** Amount of threads to use fore rendering image by the camera */
+    /** Number of threads to use fore rendering image by the camera */
     private int threadsCount = 0;
 
     /**
-     * Amount of threads to spare for Java VM threads:<br>
+     * Number of threads to spare for Java VM threads:<br>
      * Spare threads if trying to use all the cores
      */
     private static final int SPARE_THREADS = 2;
 
     /**
-     * Debug print interval in seconds (for progress percentage)<br>
+     * Debug a print interval in seconds (for progress percentage)<br>
      * if it is zero - there is no progress output
      */
     private double printInterval = 0;
@@ -105,6 +105,12 @@ public class Camera implements Cloneable {
      */
     private Camera() {
     }
+
+    /**
+     * Defines the sampling pattern used for generating points on a target area in the camera view plane.
+     */
+    private TargetArea.SamplingPattern samplingPattern = TargetArea.SamplingPattern.GRID;
+
 
     /**
      * Returns a new builder for constructing a {@link Camera}.
@@ -165,7 +171,30 @@ public class Camera implements Cloneable {
      * @param i  row index (Y)
      * @return the constructed ray
      */
-    public List<Ray> constructRay(int nX, int nY, int j, int i) {
+    public Ray constructRay(int nX, int nY, int j, int i) {
+        Point pC = p0.add(vTo.scale(distance));
+        double rY = height / nY;
+        double rX = width / nX;
+        double yI = -(i - 0.5 * (nY - 1)) * rY;
+        double xJ = (j - 0.5 * (nX - 1)) * rX;
+        Point pIJ = pC;
+        if (!Util.isZero(xJ))
+            pIJ = pIJ.add(vRight.scale(xJ));
+        if (!Util.isZero(yI))
+            pIJ = pIJ.add(vUp.scale(yI));
+        return new Ray(p0, pIJ.subtract(p0));
+    }
+
+    /**
+     * Constructs a beam of rays through a specific pixel on the view plane.
+     *
+     * @param nX the number of pixels along the X-axis (image width)
+     * @param nY the number of pixels along the Y-axis (image height)
+     * @param j the column index of the pixel (X-axis)
+     * @param i the row index of the pixel (Y-axis)
+     * @return a list of rays representing the beam through the specified pixel
+     */
+    public List<Ray> constructBeam(int nX, int nY, int j, int i) {
         Point pC = p0.add(vTo.scale(distance));
         double rY = height / nY;
         double rX = width / nX;
@@ -179,11 +208,11 @@ public class Camera implements Cloneable {
         Ray mainRay = new Ray(p0, pIJ.subtract(p0));
         if (numOfRays == 1)
             return List.of(mainRay);
-        TargetArea targetArea = new TargetArea();
+        QuadrilateralTargetArea targetArea = new QuadrilateralTargetArea(rY, rX, vRight, vTo, pIJ, numOfRays, samplingPattern);
         return mainRay.createBeam(targetArea);
     }
 
-    /** This function renders image's pixel color map from the scene
+    /** This function renders an image's pixel color map from the scene
      * included in the ray tracer object
      * @return the camera object itself
      */
@@ -236,10 +265,11 @@ public class Camera implements Cloneable {
      * @param i the pixel's row index
      */
     private void castRay(int j, int i) {
-        List<Ray> beamRays = constructRay(nX, nY, j, i);
+        List<Ray> beamRays = constructBeam(nX, nY, j, i);
         Color pixelColor = Color.BLACK;
-        for (Ray ray : beamRays)
-            pixelColor.add(rayTracer.traceRay(ray));
+        for (Ray ray : beamRays) {
+            pixelColor = pixelColor.add(rayTracer.traceRay(ray));
+        }
         imageWriter.writePixel(j, i, pixelColor.reduce(beamRays.size()));
         pixelManager.pixelDone();
     }
@@ -414,6 +444,17 @@ public class Camera implements Cloneable {
         }
 
         /**
+         * Sets the sampling pattern for the target area.
+         *
+         * @param pattern the sampling pattern to use, such as RANDOM, GRID, or JITTERED
+         * @return this builder instance
+         */
+        public Builder setSamplingPattern(TargetArea.SamplingPattern pattern) {
+            camera.samplingPattern = pattern;
+            return this;
+        }
+
+        /**
          * Constants representing error message
          */
         private static final String MISSING_RENDER_DATA = "Missing rendering data";
@@ -486,6 +527,15 @@ public class Camera implements Cloneable {
 
             if (camera.nX <= 0 || camera.nY <= 0)
                 throw new IllegalArgumentException("Nx and Ny must be positive");
+
+            if (camera.threadsCount < -1)
+                throw new IllegalArgumentException("Threads count must be -1 or higher");
+
+            if (camera.printInterval < 0)
+                throw new IllegalArgumentException("Print interval must be non-negative");
+
+            if (camera.numOfRays < 1)
+                throw new IllegalArgumentException("Number of super sampling rays must not be smaller than 1");
 
             camera.imageWriter = new ImageWriter(camera.nX, camera.nY);
 

@@ -19,9 +19,10 @@ public class PRO1Tests {
         final Scene scene = new Scene("Test scene");
         final Camera.Builder cameraBuilder = Camera.getBuilder()
                 .setRayTracer(scene, RayTracerType.SIMPLE);
+
         scene.setAmbientLight(new AmbientLight(new Color(40, 40, 40)));
         cameraBuilder
-                .setLocation(new Point(0, 0, 500))
+                .setLocation(new Point(0, 0, 1000))
                 .setDirection(new Point(0, 0, -1))
                 .setVpDistance(1000).setVpSize(200, 200)
                 .setResolution(1000, 1000)

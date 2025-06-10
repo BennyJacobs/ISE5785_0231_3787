@@ -223,8 +223,8 @@ public class SimpleRayTracer extends RayTracerBase {
 
         }
         else {
-            TargetArea targetArea = new TargetArea(constructRefractedRay(intersection),
-                    intersection.material.targetAreaSizeBlurry,
+            CircleTargetArea targetArea = new CircleTargetArea(intersection.material.targetAreaSizeBlurry,
+                    constructRefractedRay(intersection),
                     intersection.material.targetAreaDistanceBlurry,
                     intersection.material.numOfRaysBlurry,
                     scene.samplingPattern);
@@ -246,8 +246,8 @@ public class SimpleRayTracer extends RayTracerBase {
 
         }
         else {
-            TargetArea targetArea = new TargetArea(constructReflectedRay(intersection),
-                    intersection.material.targetAreaSizeGlossy,
+            CircleTargetArea targetArea = new CircleTargetArea(intersection.material.targetAreaSizeGlossy,
+                    constructReflectedRay(intersection),
                     intersection.material.targetAreaDistanceGlossy,
                     intersection.material.numOfRaysGlossy,
                     scene.samplingPattern);
