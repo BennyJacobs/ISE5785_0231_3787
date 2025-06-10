@@ -216,8 +216,8 @@ public class SimpleRayTracer extends RayTracerBase {
         Color refractedColor = Color.BLACK;
         Color reflectedColor = Color.BLACK;
 
-        if (intersection.material.targetAreaSizeBlurry == 0.0 || intersection.material.targetAreaDistanceBlurry == 0.0) {
-
+        if (intersection.material.targetAreaSizeBlurry == 0.0 ||
+                intersection.material.targetAreaDistanceBlurry == 0.0) {
             Ray refractedRay = constructRefractedRay(intersection);
             refractedColor = calcGlobalEffect(refractedRay, level, k, intersection.material.kT);
 
@@ -230,9 +230,8 @@ public class SimpleRayTracer extends RayTracerBase {
                             scene.samplingPattern);
 
             for (Ray ray : refractedBeam) {
-                refractedColor = refractedColor.add(
-                        calcGlobalEffect(ray, level, k, intersection.material.kT)
-                );
+                if (Util.alignZero(ray.getDirection().dotProduct(intersection.geometry.getNormal(intersection.point))) > 0)
+                    refractedColor = refractedColor.add(calcGlobalEffect(ray, level, k, intersection.material.kT));
             }
 
             refractedColor = refractedColor.reduce(refractedBeam.size());
@@ -252,9 +251,8 @@ public class SimpleRayTracer extends RayTracerBase {
                             scene.samplingPattern);
 
             for (Ray ray : reflectedBeam) {
-                reflectedColor = reflectedColor.add(
-                        calcGlobalEffect(ray, level, k, intersection.material.kR)
-                );
+                if (Util.alignZero(ray.getDirection().dotProduct(intersection.normal)) > 0)
+                    reflectedColor = reflectedColor.add(calcGlobalEffect(ray, level, k, intersection.material.kR));
             }
 
             reflectedColor = reflectedColor.reduce(reflectedBeam.size());
