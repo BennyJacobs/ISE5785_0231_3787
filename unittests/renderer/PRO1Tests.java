@@ -178,15 +178,15 @@ public class PRO1Tests {
                         .setMaterial(new Material().setKD(0.2).setKS(0.2).setShininess(30).setKR(0.6)),
                 new Circle(new Point(0, 20, houseMinZ + 0.1), 31, new Vector(0, 0, 1))
                         .setMaterial(new Material().setKD(0.5).setKS(0.5).setShininess(70))
-                        .setEmission(new Color(DARK_GRAY))
-                /* new Polygon(new Point(houseMinX + 50, houseMinY, houseMinZ + 300), new Point(houseMinX + 50, houseMinY + 150, houseMinZ + 300), new Point(houseMinX + 90, houseMinY + 150, houseMinZ + 300), new Point(houseMinX + 90, houseMinY, houseMinZ + 300))
+                        .setEmission(new Color(DARK_GRAY)),
+                new Polygon(new Point(houseMinX + 50, houseMinY, houseMinZ + 300), new Point(houseMinX + 50, houseMinY + 150, houseMinZ + 300), new Point(houseMinX + 90, houseMinY + 150, houseMinZ + 300), new Point(houseMinX + 90, houseMinY, houseMinZ + 300))
                         .setMaterial(new Material().setKD(0.2).setKS(0.2).setShininess(20).setKT(0.6)),
                 new Polygon(new Point(houseMinX + 100, houseMinY, houseMinZ + 300), new Point(houseMinX + 100, houseMinY + 150, houseMinZ + 300), new Point(houseMinX + 140, houseMinY + 150, houseMinZ + 300), new Point(houseMinX + 140, houseMinY, houseMinZ + 300))
                         .setMaterial(new Material().setKD(0.2).setKS(0.2).setShininess(20).setKT(0.6)
                                 .setDiffuseProperties(30, 1, 80)),
                 new Polygon(new Point(houseMinX + 150, houseMinY, houseMinZ + 300), new Point(houseMinX + 150, houseMinY + 150, houseMinZ + 300), new Point(houseMinX + 190, houseMinY + 150, houseMinZ + 300), new Point(houseMinX + 190, houseMinY, houseMinZ + 300))
                         .setMaterial(new Material().setKD(0.2).setKS(0.2).setShininess(20).setKT(0.6)
-                                .setDiffuseProperties(20, 2, 60)) */
+                                .setDiffuseProperties(20, 2, 60))
         );
         scene.geometries.add(
                 wineBottle,
@@ -202,11 +202,11 @@ public class PRO1Tests {
         scene.setAmbientLight(new AmbientLight(new Color(40, 40, 40)));
         scene.lights.add(
                 new SpotLight(new Color(200, 200, 200), new Point(50, 50, 30), new Vector(-6, -6, -4))
-                        .setKl(4E-5).setKq(2E-7).setNumOfRays(50).setRadius(10)
+                        .setKl(4E-5).setKq(2E-7).setRadius(5).setNumOfRays(20)
         );
         scene.lights.add(
                 new SpotLight(new Color(200, 200, 200), new Point(50, -50, 30), new Vector(-70, 30, -40))
-                        .setKl(4E-5).setKq(2E-7).setNarrowBeam(10).setNumOfRays(50).setRadius(10)
+                        .setKl(4E-5).setKq(2E-7).setNarrowBeam(10).setRadius(5).setNumOfRays(20)
         );
         scene.lights.add(
                 new DirectionalLight(new Color(510, 510, 360), new Point(-20, -20, -20).subtract(new Point(-120, 40, -100)))
@@ -219,7 +219,6 @@ public class PRO1Tests {
                 .setVpDistance(1000).setVpSize(200, 200) //
                 .setResolution(1000, 1000) //
                 .setMultithreading(4)
-                .setNumOfRaysAA(40)
                 .setDebugPrint(1)
                 .build() //
                 .renderImage() //
@@ -258,5 +257,33 @@ public class PRO1Tests {
                 .build()
                 .renderImage()
                 .writeToImage("allEffects-PRO1");
+    }
+
+    @Test
+    void Shadows_test() {
+        final Scene scene = new Scene("Test scene");
+        final Camera.Builder cameraBuilder = Camera.getBuilder()
+                .setRayTracer(scene, RayTracerType.SIMPLE);
+
+        scene.geometries.add(
+                new Polygon(new Point(400,0,600), new Point(-400,0,600), new Point(-400,0,-200), new Point(400,0,-200)).setMaterial(new Material().setKD(0.5).setKS(0.5).setShininess(70))
+        );
+
+        scene.lights.add(
+                new PointLight(new Color(500, 500, 500), new Point(0, -1, -201))
+                        .setKl(4E-5).setKq(2E-7).setRadius(20).setNumOfRays(60)
+        );
+        scene.setAmbientLight(new AmbientLight(new Color(40, 40, 40)));
+        cameraBuilder
+                .setLocation(new Point(0, 200, 1000))
+                .setDirection(new Point(0, 0, 0))
+                .setVpDistance(1000)
+                .setVpSize(200, 200)
+                .setResolution(1000, 1000)
+                .setMultithreading(4)
+                .setDebugPrint(1)
+                .build()
+                .renderImage()
+                .writeToImage("shadows-horizon");
     }
 }

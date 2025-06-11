@@ -45,7 +45,7 @@ public class Scene {
     /**
      * Defines the sampling pattern used for generating points on a target area in the scene.
      */
-    public TargetArea.SamplingPattern samplingPattern = TargetArea.SamplingPattern.GRID;
+    public TargetArea.SamplingPattern samplingPattern = TargetArea.SamplingPattern.JITTERED;
 
     /**
      * Constructs a scene with the specified name.

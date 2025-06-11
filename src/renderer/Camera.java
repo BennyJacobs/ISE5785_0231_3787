@@ -124,7 +124,7 @@ public class Camera implements Cloneable {
     /**
      * Defines the sampling pattern used for generating points on a target area in the camera view plane.
      */
-    private TargetArea.SamplingPattern samplingPattern = TargetArea.SamplingPattern.GRID;
+    private TargetArea.SamplingPattern samplingPattern = TargetArea.SamplingPattern.JITTERED;
 
 
     /**

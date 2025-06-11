@@ -66,7 +66,7 @@ public class SimpleRayTracer extends RayTracerBase {
      * to the recursive {@code calcColor} method with initial depth and attenuation parameters.
      *
      * @param intersection the intersection point to evaluate
-     * @param ray the ray that hit the geometry at the intersection
+     * @param ray          the ray that hit the geometry at the intersection
      * @return the resulting color at the intersection point
      */
     private Color calcColor(Intersection intersection, Ray ray) {
@@ -79,8 +79,8 @@ public class SimpleRayTracer extends RayTracerBase {
      * Calculates the total color at an intersection point including local and global lighting effects.
      *
      * @param intersection the intersection point for which to calculate the color
-     * @param level the recursion level for global lighting (reflection/refraction)
-     * @param k the accumulated transparency/reflection coefficient
+     * @param level        the recursion level for global lighting (reflection/refraction)
+     * @param k            the accumulated transparency/reflection coefficient
      * @return the resulting color at the intersection
      */
     private Color calcColor(Intersection intersection, int level, Double3 k) {
@@ -125,8 +125,11 @@ public class SimpleRayTracer extends RayTracerBase {
     private Color calcLocalEffects(Intersection intersection, Double3 k) {
         Color color = intersection.geometry.getEmission();
         for (LightSource lightSource : scene.lights) {
-            if (!setLightSource(intersection, lightSource))
-                continue;
+            boolean checking = setLightSource(intersection, lightSource);
+            if (lightSource instanceof DirectionalLight || lightSource instanceof PointLight && ((PointLight) lightSource).getNumOfRays() == 1 && ((PointLight) lightSource).getRadius() == 0) {
+                if (!checking)
+                    continue;
+            }
             Double3 ktr = transparency(intersection);
             if (!ktr.product(k).lowerThan(MIN_CALC_COLOR_K)) {
                 Color iL = lightSource.getIntensity(intersection.point).scale(ktr);
@@ -190,35 +193,34 @@ public class SimpleRayTracer extends RayTracerBase {
      */
     private Double3 transparency(Intersection intersection) {
         if (!(intersection.light instanceof DirectionalLight) && ((PointLight) intersection.light).getRadius() != 0.0
-        && ((PointLight) intersection.light).getNumOfRays() > 1) {
+                && ((PointLight) intersection.light).getNumOfRays() > 1) {
             Ray mainRay = new Ray(intersection.point, intersection.l.scale(-1), intersection.normal);
-            CircleTargetArea targetArea = new CircleTargetArea(
-                    ((PointLight) intersection.light).getRadius(),
-                    mainRay,
-                    intersection.light.getDistance(intersection.point),
-                    ((PointLight) intersection.light).getNumOfRays(),
-                    scene.samplingPattern
-            );
-            List<Ray> rayBeam = mainRay.createBeam(targetArea);
+            List<Ray> rayBeam = beamCreator(mainRay, ((PointLight) intersection.light).getRadius(),
+                    intersection.light.getDistance(intersection.point), ((PointLight) intersection.light).getNumOfRays());
             Double3 ktrTotal = Double3.ZERO;
+            int validRays = 0;
             for (Ray ray : rayBeam) {
-                var intersections = scene.geometries.calculateIntersections(
-                        ray,
-                        intersection.light.getDistance(intersection.point));
-                Double3 ktr = Double3.ONE;
-                if (intersections != null) {
-                    for (Intersection i : intersections) {
-                        if (i.material.kT.lowerThan(MIN_CALC_COLOR_K)) {
-                            ktr = Double3.ZERO;
-                            break;
+                if (Util.alignZero(ray.getDirection().dotProduct(intersection.normal) * intersection.vNormal) < 0) {
+                    validRays++;
+                    var intersections = scene.geometries.calculateIntersections(
+                            ray,
+                            intersection.light.getDistance(intersection.point));
+                    Double3 ktr = Double3.ONE;
+                    if (intersections != null) {
+                        for (Intersection i : intersections) {
+                            if (i.material.kT.lowerThan(MIN_CALC_COLOR_K)) {
+                                ktr = Double3.ZERO;
+                                break;
+                            } else
+                                ktr = ktr.product(i.material.kT);
                         }
-                        else
-                            ktr = ktr.product(i.material.kT);
                     }
+                    ktrTotal = ktrTotal.add(ktr);
                 }
-                ktrTotal = ktrTotal.add(ktr);
             }
-            return ktrTotal.reduce(rayBeam.size());
+            ktrTotal = ktrTotal.reduce(validRays);
+            System.out.println(validRays + " " + ktrTotal);
+            return ktrTotal;
         }
 
         var intersections = scene.geometries.calculateIntersections(
@@ -238,61 +240,70 @@ public class SimpleRayTracer extends RayTracerBase {
     }
 
     /**
+     * Creates a beam of rays originating from the given ray, distributed within a circular target area.
+     *
+     * @param rayToBeam the original ray from which the beam is generated
+     * @param size      the diameter of the circular target area
+     * @param distance  the distance from the origin of the ray to the center of the target area
+     * @param numRays   the number of rays in the beam
+     * @return a list of rays forming the beam
+     */
+    private List<Ray> beamCreator(Ray rayToBeam, double size, double distance, int numRays) {
+        return rayToBeam.createBeam(new CircleTargetArea(size,
+                rayToBeam,
+                distance,
+                numRays,
+                scene.samplingPattern));
+    }
+
+    /**
      * Calculates the global lighting effects (reflection and refraction) at the intersection point.
      *
      * @param intersection the intersection point being evaluated
-     * @param level the recursion level for global lighting
-     * @param k the accumulated transparency/reflection coefficient
+     * @param level        the recursion level for global lighting
+     * @param k            the accumulated transparency/reflection coefficient
      * @return the resulting color from global lighting effects
      */
     private Color calcGlobalEffects(Intersection intersection, int level, Double3 k) {
         Color refractedColor = Color.BLACK;
         Color reflectedColor = Color.BLACK;
-
+        Ray refractedRay = constructRefractedRay(intersection);
         if (intersection.material.targetAreaSizeBlurry == 0.0 ||
                 intersection.material.targetAreaDistanceBlurry == 0.0 || intersection.material.numOfRaysBlurry == 1) {
-            Ray refractedRay = constructRefractedRay(intersection);
+
             refractedColor = calcGlobalEffect(refractedRay, level, k, intersection.material.kT);
 
-        }
-        else {
-            CircleTargetArea targetArea = new CircleTargetArea(intersection.material.targetAreaSizeBlurry,
-                    constructRefractedRay(intersection),
-                    intersection.material.targetAreaDistanceBlurry,
-                    intersection.material.numOfRaysBlurry,
-                    scene.samplingPattern);
-            List<Ray> refractedBeam = constructRefractedRay(intersection)
-                    .createBeam(targetArea);
-
+        } else {
+            List<Ray> refractedBeam = beamCreator(refractedRay, intersection.material.targetAreaSizeBlurry,
+                    intersection.material.targetAreaDistanceBlurry, intersection.material.numOfRaysBlurry);
+            int validRayCount = 0;
             for (Ray ray : refractedBeam) {
-                if (Util.alignZero(ray.getDirection().dotProduct(intersection.geometry.getNormal(intersection.point))) > 0)
+                if (Util.alignZero(ray.getDirection().dotProduct(intersection.normal) * intersection.vNormal) > 0) {
+                    validRayCount++;
                     refractedColor = refractedColor.add(calcGlobalEffect(ray, level, k, intersection.material.kT));
+                }
             }
 
-            refractedColor = refractedColor.reduce(refractedBeam.size());
+            refractedColor = refractedColor.reduce(validRayCount);
         }
 
+        Ray reflectedRay = constructReflectedRay(intersection);
         if (intersection.material.targetAreaSizeGlossy == 0.0 ||
                 intersection.material.targetAreaDistanceGlossy == 0.0 || intersection.material.numOfRaysGlossy == 1) {
-            Ray reflectedRay = constructReflectedRay(intersection);
             reflectedColor = calcGlobalEffect(reflectedRay, level, k, intersection.material.kR);
 
-        }
-        else {
-            CircleTargetArea targetArea = new CircleTargetArea(intersection.material.targetAreaSizeGlossy,
-                    constructReflectedRay(intersection),
-                    intersection.material.targetAreaDistanceGlossy,
-                    intersection.material.numOfRaysGlossy,
-                    scene.samplingPattern);
-            List<Ray> reflectedBeam = constructReflectedRay(intersection)
-                    .createBeam(targetArea);
-
+        } else {
+            List<Ray> reflectedBeam = beamCreator(reflectedRay, intersection.material.targetAreaSizeGlossy,
+                    intersection.material.targetAreaDistanceGlossy, intersection.material.numOfRaysGlossy);
+            int validRayCount = 0;
             for (Ray ray : reflectedBeam) {
-                if (Util.alignZero(ray.getDirection().dotProduct(intersection.normal)) > 0)
+                if (Util.alignZero(ray.getDirection().dotProduct(intersection.normal) * intersection.vNormal) < 0) {
+                    validRayCount++;
                     reflectedColor = reflectedColor.add(calcGlobalEffect(ray, level, k, intersection.material.kR));
+                }
             }
 
-            reflectedColor = reflectedColor.reduce(reflectedBeam.size());
+            reflectedColor = reflectedColor.reduce(validRayCount);
         }
 
         return refractedColor.add(reflectedColor);
@@ -302,10 +313,10 @@ public class SimpleRayTracer extends RayTracerBase {
     /**
      * Calculates the global color contribution from a single reflected or refracted ray.
      *
-     * @param ray the reflected or refracted ray
+     * @param ray   the reflected or refracted ray
      * @param level the current recursion level
-     * @param k the accumulated attenuation factor so far
-     * @param kx the reflection or refraction coefficient for the current step
+     * @param k     the accumulated attenuation factor so far
+     * @param kx    the reflection or refraction coefficient for the current step
      * @return the color contribution from this global effect
      */
     private Color calcGlobalEffect(Ray ray, int level, Double3 k, Double3 kx) {
