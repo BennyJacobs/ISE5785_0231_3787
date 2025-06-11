@@ -183,10 +183,10 @@ public class PRO1Tests {
                         .setMaterial(new Material().setKD(0.2).setKS(0.2).setShininess(20).setKT(0.6)),
                 new Polygon(new Point(houseMinX + 100, houseMinY, houseMinZ + 300), new Point(houseMinX + 100, houseMinY + 150, houseMinZ + 300), new Point(houseMinX + 140, houseMinY + 150, houseMinZ + 300), new Point(houseMinX + 140, houseMinY, houseMinZ + 300))
                         .setMaterial(new Material().setKD(0.2).setKS(0.2).setShininess(20).setKT(0.6)
-                                .setDiffuseProperties(30, 1, 80)),
+                                /*.setDiffuseProperties(30, 1, 80)*/),
                 new Polygon(new Point(houseMinX + 150, houseMinY, houseMinZ + 300), new Point(houseMinX + 150, houseMinY + 150, houseMinZ + 300), new Point(houseMinX + 190, houseMinY + 150, houseMinZ + 300), new Point(houseMinX + 190, houseMinY, houseMinZ + 300))
                         .setMaterial(new Material().setKD(0.2).setKS(0.2).setShininess(20).setKT(0.6)
-                                .setDiffuseProperties(20, 2, 60))
+                                /*.setDiffuseProperties(20, 2, 60)*/)
         );
         scene.geometries.add(
                 wineBottle,
@@ -202,11 +202,11 @@ public class PRO1Tests {
         scene.setAmbientLight(new AmbientLight(new Color(40, 40, 40)));
         scene.lights.add(
                 new SpotLight(new Color(200, 200, 200), new Point(50, 50, 30), new Vector(-6, -6, -4))
-                        .setKl(4E-5).setKq(2E-7).setRadius(5).setNumOfRays(20)
+                        .setKl(4E-5).setKq(2E-7)
         );
         scene.lights.add(
                 new SpotLight(new Color(200, 200, 200), new Point(50, -50, 30), new Vector(-70, 30, -40))
-                        .setKl(4E-5).setKq(2E-7).setNarrowBeam(10).setRadius(5).setNumOfRays(20)
+                        .setKl(4E-5).setKq(2E-7).setNarrowBeam(10)
         );
         scene.lights.add(
                 new DirectionalLight(new Color(510, 510, 360), new Point(-20, -20, -20).subtract(new Point(-120, 40, -100)))
@@ -218,11 +218,11 @@ public class PRO1Tests {
                 .setDirection(new Point(0, 0, -1)) //
                 .setVpDistance(1000).setVpSize(200, 200) //
                 .setResolution(1000, 1000) //
-                .setMultithreading(4)
+                .setMultithreading(-2)
                 .setDebugPrint(1)
                 .build() //
                 .renderImage() //
-                .writeToImage("allEffects-PRO1ss");
+                .writeToImage("allEffects-PRO1");
 
     }
 
@@ -249,14 +249,14 @@ public class PRO1Tests {
                 .setVpDistance(1000)
                 .setVpSize(200, 200)
                 .setResolution(1000, 1000)
-                .setNumOfRaysDOF(100)
+                .setNumOfRaysDOF(50)
                 .setApertureWindow(100, 100)
                 .setDistanceFocalPlane(1100)
                 .setMultithreading(4)
                 .setDebugPrint(10)
                 .build()
                 .renderImage()
-                .writeToImage("allEffects-PRO1");
+                .writeToImage("dof-PRO1");
     }
 
     @Test

@@ -218,9 +218,7 @@ public class SimpleRayTracer extends RayTracerBase {
                     ktrTotal = ktrTotal.add(ktr);
                 }
             }
-            ktrTotal = ktrTotal.reduce(validRays);
-            System.out.println(validRays + " " + ktrTotal);
-            return ktrTotal;
+            return ktrTotal.reduce(validRays);
         }
 
         var intersections = scene.geometries.calculateIntersections(

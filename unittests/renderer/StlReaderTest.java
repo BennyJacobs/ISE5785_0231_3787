@@ -33,18 +33,18 @@ class StlReaderTest {
         Random rand = new Random();
         for (Triangle t : scale) {
             double chance = rand.nextDouble();
-            if (chance < 0.9)
+            if (chance < 0.8)
                 t.setEmission(new Color(40,40,40));
             else
-                t.setEmission(new Color(150,150,150));
-            t.setMaterial(new Material().setKS(0.5).setKR(0.5).setShininess(40));
+                t.setEmission(new Color(0,100,150));
+            t.setMaterial(new Material().setKS(0.5).setKD(0.5).setShininess(40));
             scene.geometries.add(t);
         }
         scene.geometries.add(new Plane(new Point(0,0,-70), new Vector(0,0,1)).setMaterial(new Material().setKD(0.5).setKS(0.5).setShininess(20)));
         scene.setAmbientLight(new AmbientLight(new Color(40, 40, 40)));
         scene.lights.add(
-                new PointLight(new Color(400, 400, 400), new Point(0, 0, 0))
-                        .setKl(4E-5).setKq(2E-7).setNumOfRays(30).setRadius(10)
+                new PointLight(new Color(300, 300, 300), new Point(0, 0, 0))
+                        .setKl(4E-5).setKq(2E-7)
         );
         cameraBuilder
                 .setLocation(new Point(1000, 0, 200))
@@ -56,9 +56,5 @@ class StlReaderTest {
                 .build()
                 .renderImage()
                 .writeToImage("StlReaderTest-positioned");
-    }
-
-    @Test
-    void scaleTriangles() {
     }
 }
