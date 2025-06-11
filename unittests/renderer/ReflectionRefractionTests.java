@@ -310,9 +310,6 @@ class ReflectionRefractionTests {
                 .setResolution(1000, 1000) //
                 .setMultithreading(4)
                 .setDebugPrint(5)
-                .setApertureWindow(10, 10)
-                .setNumOfRaysDOF(80)
-                .setDistanceFocalPlane(1010)
                 .build() //
                 .renderImage() //
                 .writeToImage("allEffects");

@@ -400,7 +400,7 @@ public class Camera implements Cloneable {
          * @throws IllegalArgumentException if distance is not positive
          */
         public Builder setDistanceFocalPlane(double distanceFocalPlane) {
-            if (Util.alignZero(distanceFocalPlane) <= 0)
+            if (Util.alignZero(distanceFocalPlane) < 0)
                 throw new IllegalArgumentException("Distance must be positive");
             camera.distanceFocalPlane = distanceFocalPlane;
             return this;
@@ -577,7 +577,6 @@ public class Camera implements Cloneable {
             checkDouble(camera.width, "width");
             checkDouble(camera.height, "height");
             checkDouble(camera.distance, "distance");
-            checkDouble(camera.distanceFocalPlane, "distance");
 
             if (camera.vRight == null) {
                 camera.vRight = camera.vTo.crossProduct(camera.vUp);
