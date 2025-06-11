@@ -74,7 +74,22 @@ public class Camera implements Cloneable {
     /**
      * Number of super sampling rays for antialiasing algorithm.
      */
-    private int numOfRays = 1;
+    private int numOfRaysAA = 1;
+
+    /**
+     * Number of super sampling rays for depth of field algorithm.
+     */
+    private int numOfRaysDOF = 1;
+
+    /**
+     * Camera's aperture window which depends on camera's aperture.
+     */
+    private TargetArea apertureWindow;
+
+    /**
+     * Focal plane distance from camera
+     */
+    private double distanceFocalPlane;
 
     /** Number of threads to use fore rendering image by the camera */
     private int threadsCount = 0;
@@ -206,9 +221,9 @@ public class Camera implements Cloneable {
         if (!Util.isZero(yI))
             pIJ = pIJ.add(vUp.scale(yI));
         Ray mainRay = new Ray(p0, pIJ.subtract(p0));
-        if (numOfRays == 1)
+        if (numOfRaysAA == 1)
             return List.of(mainRay);
-        QuadrilateralTargetArea targetArea = new QuadrilateralTargetArea(rY, rX, vRight, vTo, pIJ, numOfRays, samplingPattern);
+        QuadrilateralTargetArea targetArea = new QuadrilateralTargetArea(rY, rX, vRight, vTo, pIJ, numOfRaysAA, samplingPattern);
         return mainRay.createBeam(targetArea);
     }
 
@@ -268,7 +283,17 @@ public class Camera implements Cloneable {
         List<Ray> beamRays = constructBeam(nX, nY, j, i);
         Color pixelColor = Color.BLACK;
         for (Ray ray : beamRays) {
-            pixelColor = pixelColor.add(rayTracer.traceRay(ray));
+            if(apertureWindow != null && numOfRaysDOF > 1) {
+                List<Ray> beamRaysDOF = ray.createBeamReverse(apertureWindow, distanceFocalPlane);
+                Color rayColor = Color.BLACK;
+                for (Ray rayDOF : beamRaysDOF)
+                    rayColor = rayColor.add(rayTracer.traceRay(rayDOF));
+                rayColor = rayColor.reduce(beamRaysDOF.size());
+                pixelColor = pixelColor.add(rayColor);
+            }
+
+            else
+                pixelColor = pixelColor.add(rayTracer.traceRay(ray));
         }
         imageWriter.writePixel(j, i, pixelColor.reduce(beamRays.size()));
         pixelManager.pixelDone();
@@ -368,6 +393,20 @@ public class Camera implements Cloneable {
         }
 
         /**
+         * Sets the distance from the camera to the focal plane.
+         *
+         * @param distanceFocalPlane the distance value
+         * @return this builder
+         * @throws IllegalArgumentException if distance is not positive
+         */
+        public Builder setDistanceFocalPlane(double distanceFocalPlane) {
+            if (Util.alignZero(distanceFocalPlane) < 0)
+                throw new IllegalArgumentException("Distance must be positive");
+            camera.distanceFocalPlane = distanceFocalPlane;
+            return this;
+        }
+
+        /**
          * Sets the resolution of the view plane.
          *
          * @param nX number of pixels in width
@@ -398,14 +437,46 @@ public class Camera implements Cloneable {
         /**
          * Sets the number of super sampling rays for antialiasing algorithm
          *
-         * @param numOfRays the distance value
+         * @param numOfRaysAA number of super sampling rays for antialiasing algorithm
          * @return this builder
          * @throws IllegalArgumentException if numOfRays is smaller than 1
          */
-        public Builder setNumOfRays(int numOfRays) {
-            if (numOfRays < 1)
+        public Builder setNumOfRaysAA(int numOfRaysAA) {
+            if (numOfRaysAA < 1)
                 throw new IllegalArgumentException("Number of super sampling rays must not be smaller than 1");
-            camera.numOfRays = numOfRays;
+            camera.numOfRaysAA = numOfRaysAA;
+            return this;
+        }
+
+        /**
+         * Sets the number of super sampling rays for depth of field algorithm
+         *
+         * @param numOfRaysDOF number of super sampling rays for depth of field algorithm
+         * @return this builder
+         * @throws IllegalArgumentException if numOfRays is smaller than 1
+         */
+        public Builder setNumOfRaysDOF(int numOfRaysDOF) {
+            if (numOfRaysDOF < 1)
+                throw new IllegalArgumentException("Number of super sampling rays must not be smaller than 1");
+            camera.numOfRaysDOF = numOfRaysDOF;
+            return this;
+        }
+
+        /**
+         * Sets the number of super sampling rays for depth of field algorithm
+         *
+         * @param height the height of the aperture window
+         * @param width the width of the aperture window
+         * @return this builder
+         * @throws IllegalArgumentException if parameters are negative
+         * @throws IllegalArgumentException if necessary components for aperture window are not initialized yet
+         */
+        public Builder setApertureWindow(double height, double width) {
+            if (camera.vRight == null || camera.vTo == null || camera.p0 == null)
+                throw new IllegalArgumentException("Must initialize other components of the camera before setting aperture window");
+            if (height <= 0 || width <= 0)
+                throw new IllegalArgumentException("Height and width must not be negative");
+            camera.apertureWindow = new QuadrilateralTargetArea(height, width, camera.vRight, camera.vTo, camera.p0, camera.numOfRaysDOF, camera.samplingPattern);
             return this;
         }
 
@@ -534,7 +605,10 @@ public class Camera implements Cloneable {
             if (camera.printInterval < 0)
                 throw new IllegalArgumentException("Print interval must be non-negative");
 
-            if (camera.numOfRays < 1)
+            if (camera.numOfRaysAA < 1)
+                throw new IllegalArgumentException("Number of super sampling rays must not be smaller than 1");
+
+            if (camera.numOfRaysDOF < 1)
                 throw new IllegalArgumentException("Number of super sampling rays must not be smaller than 1");
 
             camera.imageWriter = new ImageWriter(camera.nX, camera.nY);

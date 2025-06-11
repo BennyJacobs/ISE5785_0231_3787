@@ -140,6 +140,22 @@ public class Ray {
         return beamRays;
     }
 
+    /**
+     * Generates a list of rays ("beam") according to a given target area
+     *
+     * @param targetArea the area the beam is directed from
+     * @param distance the distance of the point the beam is directed to
+     * @return a list of rays representing the beam
+     */
+    public List<Ray> createBeamReverse(TargetArea targetArea, double distance) {
+        List<Ray> beamRays = new LinkedList<>();
+        List<Point> beamPoints = targetArea.generatePoints();
+        Point focalPoint = this.getPoint(distance);
+        for (Point point : beamPoints)
+            beamRays.add(new Ray(point, focalPoint.subtract(point)));
+        return beamRays;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
