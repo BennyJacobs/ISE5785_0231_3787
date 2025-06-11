@@ -1,10 +1,14 @@
 package renderer;
 
+import geometries.Plane;
+import geometries.Sphere;
 import geometries.Triangle;
 import lighting.AmbientLight;
+import lighting.PointLight;
 import lighting.SpotLight;
 import org.junit.jupiter.api.Test;
 import primitives.Color;
+import primitives.Material;
 import primitives.Point;
 import primitives.Vector;
 import scene.Scene;
@@ -22,32 +26,32 @@ class StlReaderTest {
         final Scene scene = new Scene("Test scene");
         final Camera.Builder cameraBuilder = Camera.getBuilder()
                 .setRayTracer(scene, RayTracerType.SIMPLE);
-        Point targetPos = new Point(0, 0, -50);
+        Point targetPos = new Point(0, -15, -50);
         List<Triangle> positioned = StlReader.readSTLPositioned("C:\\Users\\djyb0\\Downloads\\files\\BODY.stl", targetPos);
-        List<Triangle> scale = StlReader.scaleTriangles(positioned, 0.4, targetPos);
+        List<Triangle> scale = StlReader.scaleTriangles(positioned, 0.8, targetPos);
         System.out.println("Number of triangles: " + positioned.size());
-        Color[] colors = {
-                new Color(GRAY),
-                new Color(BLACK),
-                new Color(40,40,40),
-        };
-
         Random rand = new Random();
-        for (Triangle t : positioned) {
-            t.setEmission(colors[rand.nextInt(colors.length)]);
+        for (Triangle t : scale) {
+            double chance = rand.nextDouble();
+            if (chance < 0.9)
+                t.setEmission(new Color(40,40,40));
+            else
+                t.setEmission(new Color(150,150,150));
+            t.setMaterial(new Material().setKS(0.5).setKR(0.5).setShininess(40));
             scene.geometries.add(t);
         }
+        scene.geometries.add(new Plane(new Point(0,0,-70), new Vector(0,0,1)).setMaterial(new Material().setKD(0.5).setKS(0.5).setShininess(20)));
         scene.setAmbientLight(new AmbientLight(new Color(40, 40, 40)));
         scene.lights.add(
-                new SpotLight(new Color(200, 200, 200), new Point(50, 50, 30), new Vector(-6, -6, -4))
-                        .setKl(4E-5).setKq(2E-7)
+                new PointLight(new Color(400, 400, 400), new Point(0, 0, 0))
+                        .setKl(4E-5).setKq(2E-7).setNumOfRays(30).setRadius(10)
         );
         cameraBuilder
-                .setLocation(new Point(1000, 0, 0))
+                .setLocation(new Point(1000, 0, 200))
                 .setDirection(new Point(0, 0, 0), Vector.AXIS_Z)
                 .setVpDistance(1000).setVpSize(200, 200)
                 .setResolution(900, 900)
-                .setMultithreading(6)
+                .setMultithreading(-2)
                 .setDebugPrint(0.5)
                 .build()
                 .renderImage()
