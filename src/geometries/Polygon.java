@@ -128,4 +128,13 @@ public class Polygon extends Geometry {
         }
         return List.of(new Intersection(this, planeIntersections.getFirst().point));
     }
+
+    /**
+     * Retrieves the list of vertices that define the polygon.
+     *
+     * @return a list of points representing the vertices of the polygon in order.
+     */
+    public List<Point> getVertices() {
+        return vertices;
+    }
 }
