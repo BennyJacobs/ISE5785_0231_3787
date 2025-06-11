@@ -144,6 +144,7 @@ public class Ray {
      * Generates a list of rays ("beam") according to a given target area
      *
      * @param targetArea the area the beam is directed from
+     * @param distance the distance of the point the beam is directed to
      * @return a list of rays representing the beam
      */
     public List<Ray> createBeamReverse(TargetArea targetArea, double distance) {
