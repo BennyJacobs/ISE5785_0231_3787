@@ -27,9 +27,15 @@ public class PointLight extends Light implements LightSource {
      */
     private double kQ = 0;
 
-    private double radius;
+    /**
+     * Represents the radius of the light source.
+     */
+    private double radius = 0.0;
 
-    private int numOfRays;
+    /**
+     * Represents the number of rays used for the super sampling algorithm in
+     */
+    private int numOfRays = 1;
 
     /**
      * Constructs a point light with specified intensity and position.
@@ -84,7 +90,7 @@ public class PointLight extends Light implements LightSource {
      */
     public PointLight setRadius(double radius) {
         if (Util.alignZero(radius) < 0)
-            throw new IllegalArgumentException("Distance must not be negative");
+            throw new IllegalArgumentException("Radius must not be negative");
         this.radius = radius;
         return this;
     }

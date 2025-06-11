@@ -190,7 +190,7 @@ public class SimpleRayTracer extends RayTracerBase {
      */
     private Double3 transparency(Intersection intersection) {
         if (!(intersection.light instanceof DirectionalLight) && ((PointLight) intersection.light).getRadius() != 0.0
-        && ((PointLight) intersection.light).getNumOfRays() != 0.0) {
+        && ((PointLight) intersection.light).getNumOfRays() > 1) {
             Ray mainRay = new Ray(intersection.point, intersection.l.scale(-1), intersection.normal);
             CircleTargetArea targetArea = new CircleTargetArea(
                     ((PointLight) intersection.light).getRadius(),
@@ -208,9 +208,12 @@ public class SimpleRayTracer extends RayTracerBase {
                 Double3 ktr = Double3.ONE;
                 if (intersections != null) {
                     for (Intersection i : intersections) {
-                        if (i.material.kT.lowerThan(MIN_CALC_COLOR_K))
-                            return Double3.ZERO;
-                        ktr = ktr.product(i.material.kT);
+                        if (i.material.kT.lowerThan(MIN_CALC_COLOR_K)) {
+                            ktr = Double3.ZERO;
+                            break;
+                        }
+                        else
+                            ktr = ktr.product(i.material.kT);
                     }
                 }
                 ktrTotal = ktrTotal.add(ktr);

@@ -297,7 +297,7 @@ class ReflectionRefractionTests {
         );
         scene.lights.add(
                 new SpotLight(new Color(200, 200, 200), new Point(50, -50, 30), new Vector(-70, 30, -40))
-                        .setKl(4E-5).setKq(2E-7).setNarrowBeam(10)זז
+                        .setKl(4E-5).setKq(2E-7).setNarrowBeam(10)
         );
         scene.lights.add(
                 new DirectionalLight(new Color(510, 510, 360), new Point(-20, -20, -20).subtract(new Point(-120, 40, -100)))

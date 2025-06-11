@@ -46,7 +46,12 @@ public class StlReader {
                     );
                 } else if (line.equals("endfacet")) {
                     if (normal != null && vertexIndex == 3) {
-                        triangles.add(new Triangle(vertices[0], vertices[1], vertices[2]));
+                        try {
+                            triangles.add(new Triangle(vertices[0], vertices[1], vertices[2]));
+                        }
+                        catch (Exception e) {
+                            continue;
+                        }
                     }
                 }
             }
@@ -94,15 +99,11 @@ public class StlReader {
                 // Skip attribute byte count (2 bytes)
                 buffer.getShort();
                 try {
-                triangles.add(new Triangle(v1, v2, v3));
-                System.out.println("Triangle: " + triangles.get(i) + " Normal: " + normal + " v1: " + v1 + " v2: " + v2 + " v3: " + v3);
+                    triangles.add(new Triangle(v1, v2, v3));
+                    System.out.println("Triangle: " + triangles.get(i) + " Normal: " + normal + " v1: " + v1 + " v2: " + v2 + " v3: " + v3);
                 }
                 catch (Exception e) {
-                    System.out.println("Error reading triangle " + i);
-                    System.out.println("Normal: " + normal);
-                    System.out.println("v1: " + v1);
-                    System.out.println("v2: " + v2);
-                    System.out.println("v3: " + v3);
+                    continue;
                 }
             }
         }
